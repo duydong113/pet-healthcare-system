@@ -5,8 +5,8 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Pet Healthcare Management',
-  description: 'Manage your pet healthcare center',
+  title: 'Pet Healthcare Management System',
+  description: 'Professional pet healthcare management solution',
 }
 
 export default function RootLayout({

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { serviceAPI } from '@/services/api';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, X } from 'lucide-react';
 
 export default function ServicesPage() {
   const [services, setServices] = useState<any[]>([]);
@@ -80,11 +80,8 @@ export default function ServicesPage() {
             <p className="text-gray-600 mt-1">Manage healthcare services</p>
           </div>
           <button
-            onClick={() => {
-              resetForm();
-              setShowModal(true);
-            }}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            onClick={() => { resetForm(); setShowModal(true); }}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-lg"
           >
             <Plus size={20} />
             Add Service
@@ -93,7 +90,7 @@ export default function ServicesPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {services.map((service) => (
-            <div key={service.service_id} className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div key={service.service_id} className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow">
               <div className="flex justify-between items-start mb-4">
                 <h3 className="text-lg font-bold text-gray-900">{service.service_name}</h3>
                 <div className="flex gap-2">
@@ -105,8 +102,8 @@ export default function ServicesPage() {
                   </button>
                 </div>
               </div>
-              <p className="text-sm text-gray-600 mb-4">{service.description || 'No description'}</p>
-              <div className="text-2xl font-bold text-blue-600">${service.price}</div>
+              <p className="text-sm text-gray-600 mb-4 line-clamp-2">{service.description || 'No description'}</p>
+              <div className="text-2xl font-bold text-blue-600">${service.price.toFixed(2)}</div>
             </div>
           ))}
         </div>
@@ -115,7 +112,12 @@ export default function ServicesPage() {
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-2xl font-bold mb-4">{editingService ? 'Edit Service' : 'Add New Service'}</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold">{editingService ? 'Edit Service' : 'Add New Service'}</h2>
+              <button onClick={() => { setShowModal(false); resetForm(); }}>
+                <X size={24} />
+              </button>
+            </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Service Name *</label>
@@ -150,10 +152,7 @@ export default function ServicesPage() {
               <div className="flex gap-3 pt-4">
                 <button
                   type="button"
-                  onClick={() => {
-                    setShowModal(false);
-                    resetForm();
-                  }}
+                  onClick={() => { setShowModal(false); resetForm(); }}
                   className="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50"
                 >
                   Cancel

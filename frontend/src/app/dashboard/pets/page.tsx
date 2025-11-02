@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { petAPI, petOwnerAPI } from '@/services/api';
-import { Plus, Edit, Trash2, Search } from 'lucide-react';
+import { Plus, Edit, Trash2, X } from 'lucide-react';
 
 export default function PetsPage() {
   const [pets, setPets] = useState<any[]>([]);
@@ -105,18 +105,15 @@ export default function PetsPage() {
             <p className="text-gray-600 mt-1">Manage pet records</p>
           </div>
           <button
-            onClick={() => {
-              resetForm();
-              setShowModal(true);
-            }}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            onClick={() => { resetForm(); setShowModal(true); }}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-lg"
           >
             <Plus size={20} />
             Add Pet
           </button>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
           {loading ? (
             <div className="p-8 text-center">Loading...</div>
           ) : (
@@ -166,7 +163,12 @@ export default function PetsPage() {
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl font-bold mb-4">{editingPet ? 'Edit Pet' : 'Add New Pet'}</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold">{editingPet ? 'Edit Pet' : 'Add New Pet'}</h2>
+              <button onClick={() => { setShowModal(false); resetForm(); }}>
+                <X size={24} />
+              </button>
+            </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Owner *</label>
@@ -241,10 +243,7 @@ export default function PetsPage() {
               <div className="flex gap-3 pt-4">
                 <button
                   type="button"
-                  onClick={() => {
-                    setShowModal(false);
-                    resetForm();
-                  }}
+                  onClick={() => { setShowModal(false); resetForm(); }}
                   className="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50"
                 >
                   Cancel

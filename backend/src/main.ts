@@ -20,12 +20,12 @@ async function bootstrap() {
     }),
   );
 
-  // Swagger configuration
+  // Swagger configuration (đã bỏ authorize)
   const config = new DocumentBuilder()
     .setTitle('Pet Healthcare API')
     .setDescription('API documentation for Pet Healthcare Management System')
     .setVersion('1.0')
-    .addBearerAuth()
+    // .addBearerAuth() ❌ Bỏ dòng này đi
     .build();
   
   const document = SwaggerModule.createDocument(app, config);
