@@ -27,7 +27,12 @@ export default function LoginPage() {
       localStorage.setItem('token', response.data.access_token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
 
-      router.push('/dashboard');
+      // Redirect based on user type
+      if (response.data.user.type === 'owner') {
+        router.push('/owner/dashboard');
+      } else {
+        router.push('/dashboard');
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
     } finally {
