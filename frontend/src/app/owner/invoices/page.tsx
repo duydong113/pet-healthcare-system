@@ -46,8 +46,8 @@ export default function OwnerInvoicesPage() {
     <PetOwnerLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-black-900">My Invoices 💰</h1>
-          <p className="text-black-600 mt-1">View and track your payment history</p>
+          <h1 className="text-3xl font-bold text-gray-900">My Invoices 💰</h1>
+          <p className="text-gray-600 mt-1">View and track your payment history</p>
         </div>
 
         {/* Summary Card */}
@@ -71,8 +71,8 @@ export default function OwnerInvoicesPage() {
           </div>
         ) : invoices.length === 0 ? (
           <div className="bg-white rounded-xl shadow-sm border p-12 text-center">
-            <Receipt className="mx-auto mb-4 text-black-400" size={64} />
-            <h3 className="text-xl font-bold text-black-900 mb-2">No Invoices</h3>
+            <Receipt className="mx-auto mb-4 text-gray-400" size={64} />
+            <h3 className="text-xl font-bold text-gray-900 mb-2">No Invoices</h3>
             <p className="text-gray-600">Invoices will appear here after services</p>
           </div>
         ) : (
@@ -85,7 +85,7 @@ export default function OwnerInvoicesPage() {
                       <Receipt className="text-orange-600" size={24} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-black-900">Invoice #{invoice.invoice_id}</h3>
+                      <h3 className="text-lg font-bold text-gray-900">Invoice #{invoice.invoice_id}</h3>
                       <p className="text-sm text-gray-600">
                         Issued on {new Date(invoice.created_at).toLocaleDateString()}
                       </p>
@@ -99,11 +99,11 @@ export default function OwnerInvoicesPage() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                   <div>
                     <p className="text-xs text-gray-500 mb-1">Base Amount</p>
-                    <p className="font-medium text-black-900">${invoice.base_amount.toFixed(2)}</p>
+                    <p className="font-medium text-gray-900">${invoice.base_amount.toFixed(2)}</p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 mb-1">Additional Cost</p>
-                    <p className="font-medium text-black-900">${invoice.additional_cost.toFixed(2)}</p>
+                    <p className="font-medium text-gray-900">${invoice.additional_cost.toFixed(2)}</p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 mb-1">Total Amount</p>
@@ -111,7 +111,7 @@ export default function OwnerInvoicesPage() {
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 mb-1">Payment Method</p>
-                    <p className="font-medium text-back-900">{invoice.payment_method}</p>
+                    <p className="font-medium text-gray-900">{invoice.payment_method}</p>
                   </div>
                 </div>
 

@@ -60,7 +60,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="h-full flex flex-col">
           {/* Logo */}
           <div className="p-6 border-b border-gray-200">
-            <h1 className="text-2xl font-bold text-blue-600">🐾 Pet Care</h1>
+            <h1 className="text-2xl font-bold text-blue-600">🐾 VNU Pet Care</h1>
             <p className="text-xs text-gray-500 mt-1">Healthcare System</p>
           </div>
 

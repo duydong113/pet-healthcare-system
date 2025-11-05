@@ -171,59 +171,142 @@ export default function MedicalRecordsPage() {
         </div>
       </div>
 
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md my-8">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold">{editing ? 'Edit Record' : 'New Medical Record'}</h2>
-              <button onClick={() => { setShowModal(false); resetForm(); }}><X size={24} /></button>
-            </div>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Appointment *</label>
-                <select value={formData.appointment_id} onChange={(e) => setFormData({ ...formData, appointment_id: e.target.value })} className="w-full px-3 py-2 border rounded-lg" required>
-                  <option value="">Select Appointment</option>
-                  {appointments.map((a) => (
-                    <option key={a.appointment_id} value={a.appointment_id}>
-                      #{a.appointment_id} - {a.pet?.name} ({new Date(a.appointment_date).toLocaleDateString()})
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Pet *</label>
-                <select value={formData.pet_id} onChange={(e) => setFormData({ ...formData, pet_id: e.target.value })} className="w-full px-3 py-2 border rounded-lg" required>
-                  <option value="">Select Pet</option>
-                  {pets.map((p) => (<option key={p.pet_id} value={p.pet_id}>{p.name} ({p.species})</option>))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Staff *</label>
-                <select value={formData.staff_id} onChange={(e) => setFormData({ ...formData, staff_id: e.target.value })} className="w-full px-3 py-2 border rounded-lg" required>
-                  <option value="">Select Staff</option>
-                  {staff.map((s) => (<option key={s.staff_id} value={s.staff_id}>{s.full_name}</option>))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Diagnosis *</label>
-                <textarea value={formData.diagnosis} onChange={(e) => setFormData({ ...formData, diagnosis: e.target.value })} className="w-full px-3 py-2 border rounded-lg" rows={3} required />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Treatment *</label>
-                <textarea value={formData.treatment} onChange={(e) => setFormData({ ...formData, treatment: e.target.value })} className="w-full px-3 py-2 border rounded-lg" rows={3} required />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Notes</label>
-                <textarea value={formData.note} onChange={(e) => setFormData({ ...formData, note: e.target.value })} className="w-full px-3 py-2 border rounded-lg" rows={2} />
-              </div>
-              <div className="flex gap-3 pt-4">
-                <button type="button" onClick={() => { setShowModal(false); resetForm(); }} className="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50">Cancel</button>
-                <button type="submit" className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">{editing ? 'Update' : 'Create'}</button>
-              </div>
-            </form>
-          </div>
+ {showModal && (
+  <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center">
+    <div className="flex justify-center items-center w-full h-full overflow-y-auto py-10">
+      <div className="bg-white rounded-2xl p-8 w-[90%] max-w-2xl shadow-2xl mx-auto relative">
+        <div className="flex justify-between items-center mb-6 border-b pb-3">
+          <h2 className="text-2xl font-semibold text-gray-800">
+            {editing ? 'Edit Record' : 'New Medical Record'}
+          </h2>
+          <button
+            onClick={() => {
+              setShowModal(false);
+              resetForm();
+            }}
+            className="text-gray-500 hover:text-gray-800 transition-colors"
+          >
+            <X size={24} />
+          </button>
         </div>
-      )}
+        <form onSubmit={handleSubmit} className="space-y-5 pt-2">
+          {/* Appointment */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Appointment *</label>
+            <select
+              value={formData.appointment_id}
+              onChange={(e) => setFormData({ ...formData, appointment_id: e.target.value })}
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+              required
+            >
+              <option value="">Select Appointment</option>
+              {appointments.map((a) => (
+                <option key={a.appointment_id} value={a.appointment_id}>
+                  #{a.appointment_id} - {a.pet?.name} ({new Date(a.appointment_date).toLocaleDateString()})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Pet */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Pet *</label>
+            <select
+              value={formData.pet_id}
+              onChange={(e) => setFormData({ ...formData, pet_id: e.target.value })}
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+              required
+            >
+              <option value="">Select Pet</option>
+              {pets.map((p) => (
+                <option key={p.pet_id} value={p.pet_id}>
+                  {p.name} ({p.species})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Staff */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Staff *</label>
+            <select
+              value={formData.staff_id}
+              onChange={(e) => setFormData({ ...formData, staff_id: e.target.value })}
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+              required
+            >
+              <option value="">Select Staff</option>
+              {staff.map((s) => (
+                <option key={s.staff_id} value={s.staff_id}>
+                  {s.full_name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Diagnosis */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Diagnosis *</label>
+            <textarea
+              value={formData.diagnosis}
+              onChange={(e) => setFormData({ ...formData, diagnosis: e.target.value })}
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+              rows={3}
+              placeholder="Enter diagnosis details"
+              required
+            />
+          </div>
+
+          {/* Treatment */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Treatment *</label>
+            <textarea
+              value={formData.treatment}
+              onChange={(e) => setFormData({ ...formData, treatment: e.target.value })}
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+              rows={3}
+              placeholder="Enter treatment plan"
+              required
+            />
+          </div>
+
+          {/* Notes */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+            <textarea
+              value={formData.note}
+              onChange={(e) => setFormData({ ...formData, note: e.target.value })}
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+              rows={2}
+              placeholder="Optional notes"
+            />
+          </div>
+
+          {/* Buttons */}
+          <div className="flex gap-4 pt-6">
+            <button
+              type="button"
+              onClick={() => {
+                setShowModal(false);
+                resetForm();
+              }}
+              className="flex-1 px-5 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 px-5 py-2.5 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
+            >
+              {editing ? 'Update' : 'Create'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+)}
+
     </DashboardLayout>
   );
 }

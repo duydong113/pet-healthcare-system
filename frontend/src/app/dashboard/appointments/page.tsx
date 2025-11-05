@@ -152,12 +152,12 @@ export default function AppointmentsPage() {
                 <tbody className="divide-y">
                   {appointments.map((apt) => (
                     <tr key={apt.appointment_id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 text-sm">{apt.appointment_id}</td>
-                      <td className="px-6 py-4 text-sm font-medium">{apt.pet?.name}</td>
-                      <td className="px-6 py-4 text-sm">{apt.owner?.full_name}</td>
-                      <td className="px-6 py-4 text-sm">{apt.service?.service_name}</td>
-                      <td className="px-6 py-4 text-sm">{apt.staff?.full_name}</td>
-                      <td className="px-6 py-4 text-sm">
+                      <td className="px-6 py-4 text-black text-sm">{apt.appointment_id}</td>
+                      <td className="px-6 py-4 text-black text-sm font-medium">{apt.pet?.name}</td>
+                      <td className="px-6 py-4 text-black text-sm">{apt.owner?.full_name}</td>
+                      <td className="px-6 py-4 text-black text-sm">{apt.service?.service_name}</td>
+                      <td className="px-6 py-4 text-black text-sm">{apt.staff?.full_name}</td>
+                      <td className="px-6 py-4 text-black text-sm">
                         <div className="flex items-center gap-2">
                           <Calendar size={14} />
                           {new Date(apt.appointment_date).toLocaleString()}
@@ -188,61 +188,147 @@ export default function AppointmentsPage() {
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md my-8">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold">{editing ? 'Edit Appointment' : 'New Appointment'}</h2>
-              <button onClick={() => { setShowModal(false); resetForm(); }}><X size={24} /></button>
-            </div>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Owner *</label>
-                <select value={formData.owner_id} onChange={(e) => setFormData({ ...formData, owner_id: e.target.value })} className="w-full px-3 py-2 border rounded-lg" required>
-                  <option value="">Select Owner</option>
-                  {owners.map((o) => (<option key={o.owner_id} value={o.owner_id}>{o.full_name}</option>))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Pet *</label>
-                <select value={formData.pet_id} onChange={(e) => setFormData({ ...formData, pet_id: e.target.value })} className="w-full px-3 py-2 border rounded-lg" required>
-                  <option value="">Select Pet</option>
-                  {pets.map((p) => (<option key={p.pet_id} value={p.pet_id}>{p.name} ({p.species})</option>))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Service *</label>
-                <select value={formData.service_id} onChange={(e) => setFormData({ ...formData, service_id: e.target.value })} className="w-full px-3 py-2 border rounded-lg" required>
-                  <option value="">Select Service</option>
-                  {services.map((s) => (<option key={s.service_id} value={s.service_id}>{s.service_name} (${s.price})</option>))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Staff *</label>
-                <select value={formData.staff_id} onChange={(e) => setFormData({ ...formData, staff_id: e.target.value })} className="w-full px-3 py-2 border rounded-lg" required>
-                  <option value="">Select Staff</option>
-                  {staff.map((s) => (<option key={s.staff_id} value={s.staff_id}>{s.full_name} ({s.role})</option>))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Appointment Date *</label>
-                <input type="datetime-local" value={formData.appointment_date} onChange={(e) => setFormData({ ...formData, appointment_date: e.target.value })} className="w-full px-3 py-2 border rounded-lg" required />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Status *</label>
-                <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value })} className="w-full px-3 py-2 border rounded-lg" required>
-                  <option value="Pending">Pending</option>
-                  <option value="Completed">Completed</option>
-                  <option value="Canceled">Canceled</option>
-                </select>
-              </div>
-              <div className="flex gap-3 pt-4">
-                <button type="button" onClick={() => { setShowModal(false); resetForm(); }} className="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50">Cancel</button>
-                <button type="submit" className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">{editing ? 'Update' : 'Create'}</button>
-              </div>
-            </form>
-          </div>
+  <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 overflow-y-auto">
+    <div className="bg-white rounded-2xl p-8 w-full max-w-lg my-8 shadow-2xl transition-all duration-300">
+      <div className="flex justify-between items-center mb-6 border-b pb-3">
+        <h2 className="text-2xl font-semibold text-gray-800">
+          {editing ? 'Edit Appointment' : 'New Appointment'}
+        </h2>
+        <button
+          onClick={() => {
+            setShowModal(false);
+            resetForm();
+          }}
+          className="text-gray-500 hover:text-gray-800 transition-colors"
+        >
+          <X size={24} />
+        </button>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Owner */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Owner *</label>
+          <select
+            value={formData.owner_id}
+            onChange={(e) => setFormData({ ...formData, owner_id: e.target.value })}
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+            required
+          >
+            <option value="">Select Owner</option>
+            {owners.map((o) => (
+              <option key={o.owner_id} value={o.owner_id}>
+                {o.full_name}
+              </option>
+            ))}
+          </select>
         </div>
-      )}
+
+        {/* Pet */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Pet *</label>
+          <select
+            value={formData.pet_id}
+            onChange={(e) => setFormData({ ...formData, pet_id: e.target.value })}
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+            required
+          >
+            <option value="">Select Pet</option>
+            {pets.map((p) => (
+              <option key={p.pet_id} value={p.pet_id}>
+                {p.name} ({p.species})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Service */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Service *</label>
+          <select
+            value={formData.service_id}
+            onChange={(e) => setFormData({ ...formData, service_id: e.target.value })}
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+            required
+          >
+            <option value="">Select Service</option>
+            {services.map((s) => (
+              <option key={s.service_id} value={s.service_id}>
+                {s.service_name} (${s.price})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Staff */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Staff *</label>
+          <select
+            value={formData.staff_id}
+            onChange={(e) => setFormData({ ...formData, staff_id: e.target.value })}
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+            required
+          >
+            <option value="">Select Staff</option>
+            {staff.map((s) => (
+              <option key={s.staff_id} value={s.staff_id}>
+                {s.full_name} ({s.role})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Appointment Date */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Appointment Date *</label>
+          <input
+            type="datetime-local"
+            value={formData.appointment_date}
+            onChange={(e) => setFormData({ ...formData, appointment_date: e.target.value })}
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+            required
+          />
+        </div>
+
+        {/* Status */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Status *</label>
+          <select
+            value={formData.status}
+            onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+            required
+          >
+            <option value="Pending">Pending</option>
+            <option value="Completed">Completed</option>
+            <option value="Canceled">Canceled</option>
+          </select>
+        </div>
+
+        {/* Buttons */}
+        <div className="flex gap-4 pt-6">
+          <button
+            type="button"
+            onClick={() => {
+              setShowModal(false);
+              resetForm();
+            }}
+            className="flex-1 px-5 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="flex-1 px-5 py-2.5 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
+          >
+            {editing ? 'Update' : 'Create'}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+
     </DashboardLayout>
   );
 }

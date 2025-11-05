@@ -136,7 +136,7 @@ export default function DashboardPage() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
           <p className="text-gray-600 mt-1">
-            Welcome to Pet Healthcare Management System
+            Welcome to VNU Pet Healthcare Management System
           </p>
         </div>
 
