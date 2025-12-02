@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { invoiceAPI, appointmentAPI, petOwnerAPI } from '@/services/api';
 import { Plus, Edit, Trash2, X, DollarSign } from 'lucide-react';
-import { formatCurrency } from '@/lib/utils';
+import { toFixed, formatPrice } from '@/lib/utils';
 
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<any[]>([]);
@@ -163,14 +163,14 @@ export default function InvoicesPage() {
                 <tbody className="divide-y">
                   {invoices.map((inv) => (
                     <tr key={inv.invoice_id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 text-sm font-medium">#{inv.invoice_id}</td>
-                      <td className="px-6 py-4 text-sm">{inv.owner?.full_name}</td>
-                      <td className="px-6 py-4 text-sm">${inv.base_amount.toFixed(2)}</td>
-                      <td className="px-6 py-4 text-sm">${inv.additional_cost.toFixed(2)}</td>
+                      <td className="px-6 py-4 text-black text-sm font-medium">#{inv.invoice_id}</td>
+                      <td className="px-6 py-4 text-black text-sm">{inv.owner?.full_name}</td>
+                      <td className="px-6 py-4 text-black text-sm">{formatPrice(inv.base_amount)}</td>
+                      <td className="px-6 py-4 text-black text-sm">{formatPrice(inv.additional_cost)}</td>
                       <td className="px-6 py-4">
-                        <span className="text-sm font-bold text-green-600">${inv.total_amount.toFixed(2)}</span>
+                        <span className="text-sm font-bold text-green-600">{formatPrice(inv.total_amount)}</span>
                       </td>
-                      <td className="px-6 py-4 text-sm">{inv.payment_method}</td>
+                      <td className="px-6 py-4 text-black text-sm">{inv.payment_method}</td>
                       <td className="px-6 py-4">
                         <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(inv.payment_status)}`}>
                           {inv.payment_status}
