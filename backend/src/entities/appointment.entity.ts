@@ -47,8 +47,10 @@ export class Appointment {
   @JoinColumn({ name: 'pet_id' })
   pet: Pet;
 
-  @ManyToOne(() => Service, (service) => service.appointments)
-  @JoinColumn({ name: 'service_id' })
+  @ManyToOne(() => Service, (service) => service.appointments, {
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
+  })
   service: Service;
 
   @ManyToOne(() => Staff, (staff) => staff.appointments)
