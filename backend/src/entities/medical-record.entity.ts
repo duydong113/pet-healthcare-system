@@ -34,7 +34,10 @@ export class MedicalRecord {
   @Column({ type: 'text', nullable: true })
   note: string;
 
-  @OneToOne(() => Appointment, (appointment) => appointment.medical_record)
+  @OneToOne(() => Appointment, appointment => appointment.medical_record, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'appointment_id' })
   appointment: Appointment;
 
