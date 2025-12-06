@@ -32,7 +32,7 @@ export default function OwnerProfilePage() {
     return (
       <PetOwnerLayout>
         <div className="flex items-center justify-center h-96">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500" />
         </div>
       </PetOwnerLayout>
     );
@@ -40,96 +40,157 @@ export default function OwnerProfilePage() {
 
   return (
     <PetOwnerLayout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">My Profile 👤</h1>
-          <p className="text-gray-600 mt-1">View your account information</p>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border p-8 max-w-2xl">
-          {/* Profile Header */}
-          <div className="flex items-center gap-6 mb-8 pb-8 border-b">
-            <div className="w-24 h-24 bg-gradient-to-r from-green-400 to-blue-400 rounded-full flex items-center justify-center text-4xl text-white font-bold">
-              {owner?.full_name?.charAt(0).toUpperCase()}
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">{owner?.full_name}</h2>
-              <p className="text-gray-600">Pet Owner</p>
-            </div>
+      {/* Nền cam – trắng sáng */}
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-orange-100 to-white px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-5xl mx-auto space-y-6">
+          {/* Title */}
+          <div className="flex flex-col gap-2">
+            <p className="text-xs sm:text-sm font-semibold tracking-wide text-orange-500 uppercase">
+              Account
+            </p>
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 flex items-center gap-2">
+              My Profile
+              <span className="text-2xl">🐾</span>
+            </h1>
+            <p className="text-gray-600">
+              View and manage your personal information
+            </p>
           </div>
 
-          {/* Profile Details */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
-                <Mail className="text-blue-600" size={24} />
+          {/* Main card */}
+          <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-orange-100/70 p-6 sm:p-8 lg:p-10">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 pb-6 border-b border-orange-50">
+              {/* Avatar + info */}
+              <div className="flex items-center gap-5">
+                <div className="relative">
+                  <div className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-orange-400 via-pink-400 to-red-400 rounded-full flex items-center justify-center text-3xl md:text-4xl text-white font-bold">
+                    {owner?.full_name?.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="absolute -bottom-1 right-2 inline-flex items-center rounded-full bg-white px-2 py-0.5 text-[11px] font-semibold text-orange-500 shadow-sm border border-orange-100">
+                    Pet Owner
+                  </span>
+                </div>
+                <div>
+                  <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                    {owner?.full_name}
+                  </h2>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Member since{' '}
+                    {owner?.created_at &&
+                      new Date(owner.created_at).toLocaleDateString('vi-VN', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-xs text-gray-500 mb-1">Email Address</p>
-                <p className="font-medium text-gray-900">{owner?.email}</p>
+
+              {/* Small stats on the right */}
+              <div className="grid grid-cols-3 gap-3 sm:gap-4 text-center">
+                <div className="rounded-2xl bg-orange-50 px-4 py-3">
+                  <p className="text-lg sm:text-xl font-bold text-orange-500">
+                    {owner?.pets?.length || 0}
+                  </p>
+                  <p className="text-xs text-gray-600 mt-1">Pets</p>
+                </div>
+                <div className="rounded-2xl bg-pink-50 px-4 py-3">
+                  <p className="text-lg sm:text-xl font-bold text-pink-500">
+                    {owner?.appointments?.length || 0}
+                  </p>
+                  <p className="text-xs text-gray-600 mt-1">Appointments</p>
+                </div>
+                <div className="rounded-2xl bg-amber-50 px-4 py-3">
+                  <p className="text-lg sm:text-xl font-bold text-amber-500">
+                    {owner?.invoices?.length || 0}
+                  </p>
+                  <p className="text-xs text-gray-600 mt-1">Invoices</p>
+                </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center">
-                <Phone className="text-green-600" size={24} />
+            {/* Details */}
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+              {/* Email */}
+              <div className="flex items-center gap-4 rounded-2xl border border-orange-50 bg-orange-50/60">
+                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                  <Mail className="text-orange-500" size={22} />
+                </div>
+                <div className="py-3 pr-3">
+                  <p className="text-xs text-gray-500 mb-1 uppercase tracking-wide">
+                    Email Address
+                  </p>
+                  <p className="font-medium text-gray-900 break-all">
+                    {owner?.email}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-xs text-gray-500 mb-1">Phone Number</p>
-                <p className="font-medium text-gray-900">{owner?.phone}</p>
+
+              {/* Phone */}
+              <div className="flex items-center gap-4 rounded-2xl border border-emerald-50 bg-emerald-50/70">
+                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                  <Phone className="text-emerald-500" size={22} />
+                </div>
+                <div className="py-3 pr-3">
+                  <p className="text-xs text-gray-500 mb-1 uppercase tracking-wide">
+                    Phone Number
+                  </p>
+                  <p className="font-medium text-gray-900">
+                    {owner?.phone || 'Not provided'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Account ID */}
+              <div className="flex items-center gap-4 rounded-2xl border border-purple-50 bg-purple-50/70">
+                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                  <User className="text-purple-500" size={22} />
+                </div>
+                <div className="py-3 pr-3">
+                  <p className="text-xs text-gray-500 mb-1 uppercase tracking-wide">
+                    Account ID
+                  </p>
+                  <p className="font-medium text-gray-900">
+                    #{owner?.owner_id}
+                  </p>
+                </div>
+              </div>
+
+              {/* Member since */}
+              <div className="flex items-center gap-4 rounded-2xl border border-amber-50 bg-amber-50/70">
+                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                  <Calendar className="text-amber-500" size={22} />
+                </div>
+                <div className="py-3 pr-3">
+                  <p className="text-xs text-gray-500 mb-1 uppercase tracking-wide">
+                    Member Since
+                  </p>
+                  <p className="font-medium text-gray-900">
+                    {owner?.created_at &&
+                      new Date(owner.created_at).toLocaleDateString('vi-VN', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })}
+                  </p>
+                </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-purple-50 rounded-lg flex items-center justify-center">
-                <User className="text-purple-600" size={24} />
-              </div>
-              <div>
-                <p className="text-xs text-gray-500 mb-1">Account ID</p>
-                <p className="font-medium text-gray-900">#{owner?.owner_id}</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-orange-50 rounded-lg flex items-center justify-center">
-                <Calendar className="text-orange-600" size={24} />
-              </div>
-              <div>
-                <p className="text-xs text-gray-500 mb-1">Member Since</p>
-                <p className="font-medium text-gray-900">
-                  {new Date(owner?.created_at).toLocaleDateString('vi-VN', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
+            {/* Bottom info bar */}
+            <div className="mt-8 pt-5 border-t border-orange-50">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <p className="text-sm font-semibold text-gray-900">
+                  Need to update your information?
+                </p>
+                <p className="text-sm text-gray-600">
+                  Please contact the clinic staff or visit the clinic in person
+                  to update your profile.
                 </p>
               </div>
             </div>
           </div>
-
-          {/* Stats */}
-          <div className="mt-8 pt-8 border-t grid grid-cols-3 gap-4 text-center">
-            <div>
-              <p className="text-2xl font-bold text-green-600">{owner?.pets?.length || 0}</p>
-              <p className="text-sm text-gray-600">Pets</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-blue-600">{owner?.appointments?.length || 0}</p>
-              <p className="text-sm text-gray-600">Appointments</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-orange-600">{owner?.invoices?.length || 0}</p>
-              <p className="text-sm text-gray-600">Invoices</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Info Card */}
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 max-w-2xl">
-          <h3 className="font-bold text-blue-900 mb-2">ℹ️ Update Information</h3>
-          <p className="text-sm text-blue-800">
-            To update your profile information, please contact the clinic staff or visit the clinic in person.
-          </p>
         </div>
       </div>
     </PetOwnerLayout>
