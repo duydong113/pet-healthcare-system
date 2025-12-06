@@ -99,11 +99,11 @@ export default function OwnerInvoicesPage() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                   <div>
                     <p className="text-xs text-gray-500 mb-1">Base Amount</p>
-                    <p className="font-medium text-black text-gray-900">${invoice.base_amount.toFixed(2)}</p>
+                    <p className="font-medium text-gray-900">${invoice.base_amount.toFixed(2)}</p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 mb-1">Additional Cost</p>
-                    <p className="font-medium text-black text-gray-900">${invoice.additional_cost.toFixed(2)}</p>
+                    <p className="font-medium text-gray-900">${invoice.additional_cost.toFixed(2)}</p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 mb-1">Total Amount</p>
@@ -111,7 +111,7 @@ export default function OwnerInvoicesPage() {
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 mb-1">Payment Method</p>
-                    <p className="font-medium text-black text-gray-900">{invoice.payment_method}</p>
+                    <p className="font-medium text-gray-900">{invoice.payment_method}</p>
                   </div>
                 </div>
 

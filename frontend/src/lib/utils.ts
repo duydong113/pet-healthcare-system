@@ -16,9 +16,6 @@ export function toFixed(value: any, decimals: number = 2): string {
   return num.toFixed(decimals);
 }
 
-/**
- * Format price with currency symbol
- */
 export function formatPrice(price: any, symbol: string = '$'): string {
   return `${symbol}${toFixed(price, 2)}`;
 }

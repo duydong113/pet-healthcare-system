@@ -24,7 +24,7 @@ const menuItems = [
   { icon: Briefcase, label: 'Services', href: '/dashboard/services' },
   { icon: UserCog, label: 'Staff', href: '/dashboard/staff' },
   { icon: Calendar, label: 'Appointments', href: '/dashboard/appointments' },
-  { icon: FileText, label: 'Medical Records', href: '/dashboard/medical-records' },
+  // { icon: FileText, label: 'Medical Records', href: '/dashboard/medical-records' },
   { icon: Receipt, label: 'Invoices', href: '/dashboard/invoices' },
 ];
 
