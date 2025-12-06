@@ -240,29 +240,106 @@ export default function PetOwnerLayout({ children }: { children: React.ReactNode
       </main>
 
       {/* Footer */}
-      <footer className="bg-white/80 backdrop-blur-lg border-t border-gray-200 py-6 mt-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">🐾</span>
-              <p className="text-gray-600 text-sm">
-                © 2025 VNUPetcare. All rights reserved.
+            {/* Footer */}
+      <footer className="mt-16 bg-gradient-to-r from-orange-50 via-pink-50 to-orange-50 border-t border-orange-100/60">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+
+            {/* Brand + Subscribe */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-2xl">🐾</span>
+                <span className="text-2xl font-bold">
+                  <span className="text-gray-900">VNU</span>
+                  <span className="text-orange-500">Pet</span>
+                </span>
+              </div>
+              <p className="text-sm text-gray-600 mb-5">
+                Keep track of your pet&apos;s health, appointments and records in one
+                friendly place.
+              </p>
+
+ <form
+  onSubmit={(e) => e.preventDefault()}
+  className="flex bg-white/90 rounded-full shadow-lg max-w-md overflow-hidden"
+>
+
+  {/* Input chiếm 50% */}
+  <input
+    type="email"
+    placeholder="Email address"
+    className="w-1/2 px-4 py-3 text-sm bg-transparent outline-none text-gray-700 placeholder-gray-400"
+  />
+
+  {/* Button chiếm 50%, bo cả bên trái */}
+  <button
+    type="submit"
+    className="
+      w-1/2 py-3 text-sm font-semibold text-white 
+      bg-gradient-to-r from-orange-400 to-pink-500 
+      hover:from-orange-500 hover:to-pink-600 
+      transition-all whitespace-nowrap text-center
+      rounded-l-full          /* 👈 bo góc bên trái */
+      "
+  >
+    Subscribe
+  </button>
+</form>
+
+
+
+            </div>
+
+            {/* Address */}
+            <div>
+              <h3 className="text-base font-semibold text-gray-900 mb-3">
+                Address
+              </h3>
+              <p className="text-sm text-gray-600">+84 036-722-8955</p>
+              <p className="text-sm text-gray-600">support@vnupet.com</p>
+              <p className="text-sm text-gray-600 mt-2">
+                1 VNU Street, Cau Giay<br />
+                Ha Noi, Viet Nam
               </p>
             </div>
-            <div className="flex items-center gap-6">
-              <a href="#" className="text-gray-600 hover:text-orange-500 text-sm font-medium transition-colors">
-                Privacy Policy
-              </a>
-              <a href="#" className="text-gray-600 hover:text-orange-500 text-sm font-medium transition-colors">
-                Terms of Service
-              </a>
-              <a href="#" className="text-gray-600 hover:text-orange-500 text-sm font-medium transition-colors">
-                Contact Us
-              </a>
+
+            {/* Links */}
+            <div>
+              <h3 className="text-base font-semibold text-gray-900 mb-3">
+                Links
+              </h3>
+              <ul className="space-y-2 text-sm text-gray-600">
+                <li><a href="#" className="hover:text-orange-500">About Us</a></li>
+                <li><a href="#" className="hover:text-orange-500">Grooming</a></li>
+                <li><a href="#" className="hover:text-orange-500">Contact Us</a></li>
+                <li><a href="#" className="hover:text-orange-500">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-orange-500">Terms</a></li>
+              </ul>
             </div>
+
+            {/* Opening Hours */}
+            <div>
+              <h3 className="text-base font-semibold text-gray-900 mb-3">
+                Opening Hours
+              </h3>
+              <ul className="space-y-1 text-sm text-gray-600">
+                <li>Mon–Tue: 09:00–18:00</li>
+                <li>Wed: 09:00–18:00</li>
+                <li>Thu–Fri: 09:00–18:00</li>
+                <li>Sat: 10:00–17:00</li>
+                <li>Sun: 10:00–16:00</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom mini line */}
+          <div className="mt-8 flex items-center justify-between text-[11px] sm:text-xs text-gray-500">
+            <span>© 2025 VNUPet. All rights reserved.</span>
+            <span className="hidden sm:inline">Made with ❤️ for every pet & pet lover.</span>
           </div>
         </div>
       </footer>
+
     </div>
   );
 }
