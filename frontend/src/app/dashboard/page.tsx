@@ -1,14 +1,31 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import DashboardLayout from '@/components/layout/DashboardLayout';
-import { Users, PawPrint, Calendar, Receipt, TrendingUp, Clock } from 'lucide-react';
+import { useEffect, useState } from "react";
+import DashboardLayout from "@/components/layout/DashboardLayout";
+import {
+  Users,
+  PawPrint,
+  Calendar,
+  Receipt,
+  TrendingUp,
+  Clock,
+} from "lucide-react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 import {
   petOwnerAPI,
   petAPI,
   appointmentAPI,
   invoiceAPI,
-} from '@/services/api';
+} from "@/services/api";
 
 export default function DashboardPage() {
   const [stats, setStats] = useState({
@@ -19,6 +36,7 @@ export default function DashboardPage() {
     pendingAppointments: 0,
     unpaidInvoices: 0,
   });
+  const [chartData, setChartData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -36,11 +54,11 @@ export default function DashboardPage() {
         ]);
 
       const pendingAppointments = appointmentsRes.data.filter(
-        (a: any) => a.status === 'Pending'
+        (a: any) => a.status === "Pending"
       ).length;
 
       const unpaidInvoices = invoicesRes.data.filter(
-        (i: any) => i.payment_status === 'Pending'
+        (i: any) => i.payment_status === "Pending"
       ).length;
 
       setStats({
@@ -51,68 +69,113 @@ export default function DashboardPage() {
         pendingAppointments,
         unpaidInvoices,
       });
+
+      // Process chart data
+      const processedChartData = processChartData(appointmentsRes.data);
+      setChartData(processedChartData);
     } catch (error) {
-      console.error('Error fetching stats:', error);
+      console.error("Error fetching stats:", error);
     } finally {
       setLoading(false);
     }
   };
 
+  const processChartData = (appointments: any[]) => {
+    const dateMap = new Map();
+
+    appointments.forEach((appointment) => {
+      const date = new Date(appointment.appointment_date)
+        .toISOString()
+        .split("T")[0];
+      const status = appointment.status;
+
+      if (!dateMap.has(date)) {
+        dateMap.set(date, {
+          date,
+          Pending: 0,
+          Completed: 0,
+          Canceled: 0,
+        });
+      }
+
+      const dayData = dateMap.get(date);
+      dayData[status] = (dayData[status] || 0) + 1;
+    });
+
+    // Sort by date and take last 30 days
+    const sortedData = Array.from(dateMap.values())
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      .slice(-30);
+
+    return sortedData;
+  };
+
+  // Calculate max value for Y-axis ticks
+  const getMaxValue = () => {
+    if (chartData.length === 0) return 5;
+    const maxPending = Math.max(...chartData.map((d) => d.Pending || 0));
+    const maxCompleted = Math.max(...chartData.map((d) => d.Completed || 0));
+    const maxCanceled = Math.max(...chartData.map((d) => d.Canceled || 0));
+    return Math.max(maxPending, maxCompleted, maxCanceled, 5);
+  };
+
+  const yAxisTicks = Array.from({ length: getMaxValue() + 1 }, (_, i) => i);
+
   const statCards = [
     {
-      title: 'Pet Owners',
+      title: "Pet Owners",
       value: stats.owners,
       icon: Users,
-      color: 'blue',
-      bgColor: 'bg-blue-50',
-      iconColor: 'text-blue-600',
-      borderColor: 'border-blue-200',
+      color: "blue",
+      bgColor: "bg-blue-50",
+      iconColor: "text-blue-600",
+      borderColor: "border-blue-200",
     },
     {
-      title: 'Total Pets',
+      title: "Total Pets",
       value: stats.pets,
       icon: PawPrint,
-      color: 'green',
-      bgColor: 'bg-green-50',
-      iconColor: 'text-green-600',
-      borderColor: 'border-green-200',
+      color: "green",
+      bgColor: "bg-green-50",
+      iconColor: "text-green-600",
+      borderColor: "border-green-200",
     },
     {
-      title: 'Appointments',
+      title: "Appointments",
       value: stats.appointments,
       icon: Calendar,
-      color: 'purple',
-      bgColor: 'bg-purple-50',
-      iconColor: 'text-purple-600',
-      borderColor: 'border-purple-200',
+      color: "purple",
+      bgColor: "bg-purple-50",
+      iconColor: "text-purple-600",
+      borderColor: "border-purple-200",
     },
     {
-      title: 'Invoices',
+      title: "Invoices",
       value: stats.invoices,
       icon: Receipt,
-      color: 'orange',
-      bgColor: 'bg-orange-50',
-      iconColor: 'text-orange-600',
-      borderColor: 'border-orange-200',
+      color: "orange",
+      bgColor: "bg-orange-50",
+      iconColor: "text-orange-600",
+      borderColor: "border-orange-200",
     },
   ];
 
   const alertCards = [
     {
-      title: 'Pending Appointments',
+      title: "Pending Appointments",
       value: stats.pendingAppointments,
       icon: Clock,
-      bgColor: 'bg-yellow-50',
-      iconColor: 'text-yellow-600',
-      borderColor: 'border-yellow-200',
+      bgColor: "bg-yellow-50",
+      iconColor: "text-yellow-600",
+      borderColor: "border-yellow-200",
     },
     {
-      title: 'Unpaid Invoices',
+      title: "Unpaid Invoices",
       value: stats.unpaidInvoices,
       icon: TrendingUp,
-      bgColor: 'bg-red-50',
-      iconColor: 'text-red-600',
-      borderColor: 'border-red-200',
+      bgColor: "bg-red-50",
+      iconColor: "text-red-600",
+      borderColor: "border-red-200",
     },
   ];
 
@@ -152,7 +215,9 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600 mb-1">{stat.title}</p>
-                    <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+                    <p className="text-3xl font-bold text-gray-900">
+                      {stat.value}
+                    </p>
                   </div>
                   <div className={`p-4 rounded-xl ${stat.bgColor}`}>
                     <Icon className={stat.iconColor} size={28} />
@@ -178,7 +243,9 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">{alert.title}</p>
-                    <p className="text-2xl font-bold text-gray-900">{alert.value}</p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {alert.value}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -188,36 +255,131 @@ export default function DashboardPage() {
 
         {/* Quick Actions */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">
+            Quick Actions
+          </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <a
               href="/dashboard/pet-owners"
               className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer group"
             >
-              <Users className="mx-auto mb-2 text-gray-400 group-hover:text-blue-600" size={32} />
-              <p className="text-sm font-medium text-gray-700 text-center">Add Owner</p>
+              <Users
+                className="mx-auto mb-2 text-gray-400 group-hover:text-blue-600"
+                size={32}
+              />
+              <p className="text-sm font-medium text-gray-700 text-center">
+                Add Owner
+              </p>
             </a>
             <a
               href="/dashboard/pets"
               className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-green-500 hover:bg-green-50 transition-all cursor-pointer group"
             >
-              <PawPrint className="mx-auto mb-2 text-gray-400 group-hover:text-green-600" size={32} />
-              <p className="text-sm font-medium text-gray-700 text-center">Add Pet</p>
+              <PawPrint
+                className="mx-auto mb-2 text-gray-400 group-hover:text-green-600"
+                size={32}
+              />
+              <p className="text-sm font-medium text-gray-700 text-center">
+                Add Pet
+              </p>
             </a>
             <a
               href="/dashboard/appointments"
               className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-all cursor-pointer group"
             >
-              <Calendar className="mx-auto mb-2 text-gray-400 group-hover:text-purple-600" size={32} />
-              <p className="text-sm font-medium text-gray-700 text-center">New Appointment</p>
+              <Calendar
+                className="mx-auto mb-2 text-gray-400 group-hover:text-purple-600"
+                size={32}
+              />
+              <p className="text-sm font-medium text-gray-700 text-center">
+                New Appointment
+              </p>
             </a>
             <a
               href="/dashboard/invoices"
               className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-all cursor-pointer group"
             >
-              <Receipt className="mx-auto mb-2 text-gray-400 group-hover:text-orange-600" size={32} />
-              <p className="text-sm font-medium text-gray-700 text-center">Create Invoice</p>
+              <Receipt
+                className="mx-auto mb-2 text-gray-400 group-hover:text-orange-600"
+                size={32}
+              />
+              <p className="text-sm font-medium text-gray-700 text-center">
+                Create Invoice
+              </p>
             </a>
+          </div>
+        </div>
+
+        {/* Appointments Chart */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900">
+                Appointments Overview
+              </h2>
+              <p className="text-sm text-gray-600">
+                Daily appointments by status (last 30 days)
+              </p>
+            </div>
+          </div>
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="date"
+                  tick={{ fontSize: 12 }}
+                  tickFormatter={(value) =>
+                    new Date(value).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                    })
+                  }
+                />
+                <YAxis
+                  tick={{ fontSize: 12 }}
+                  domain={[0, "dataMax"]}
+                  ticks={yAxisTicks}
+                  interval={0}
+                />
+                <Tooltip
+                  labelFormatter={(value) =>
+                    new Date(value).toLocaleDateString("en-US", {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })
+                  }
+                  formatter={(value, name) => [value, name]}
+                />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="Pending"
+                  stroke="#f59e0b"
+                  strokeWidth={2}
+                  dot={{ fill: "#f59e0b", strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6 }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="Completed"
+                  stroke="#10b981"
+                  strokeWidth={2}
+                  dot={{ fill: "#10b981", strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6 }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="Canceled"
+                  stroke="#ef4444"
+                  strokeWidth={2}
+                  dot={{ fill: "#ef4444", strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         </div>
       </div>
