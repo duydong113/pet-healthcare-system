@@ -34,8 +34,22 @@ export default function OwnerAppointmentsPage() {
       case 'Pending': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
       case 'Completed': return 'bg-green-100 text-green-800 border-green-300';
       case 'Canceled': return 'bg-red-100 text-red-800 border-red-300';
+      case 'Assigned': 
+      case 'Confirmed':
+        return 'bg-blue-100 text-blue-800 border-blue-300';
       default: return 'bg-gray-100 text-gray-800 border-gray-300';
     }
+  };
+
+  const formatServices = (apt: any) => {
+    if (apt.appointmentServices?.length) {
+      return apt.appointmentServices
+        .map((as: any) => as.service?.service_name)
+        .filter(Boolean)
+        .join(', ');
+    }
+    // fallback nếu còn dữ liệu cũ 1 service
+    return apt.service?.service_name || '—';
   };
 
   return (
@@ -43,7 +57,7 @@ export default function OwnerAppointmentsPage() {
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">My Appointments 📅</h1>
-          <p className="text-gray-600 mt-1">View your pet's scheduled appointments</p>
+          <p className="text-gray-600 mt-1">View your pet&apos;s scheduled appointments</p>
         </div>
 
         {loading ? (
@@ -59,7 +73,10 @@ export default function OwnerAppointmentsPage() {
         ) : (
           <div className="space-y-4">
             {appointments.map((apt) => (
-              <div key={apt.appointment_id} className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-shadow">
+              <div
+                key={apt.appointment_id}
+                className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-shadow"
+              >
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
@@ -72,22 +89,30 @@ export default function OwnerAppointmentsPage() {
                       <p className="text-sm text-gray-600">for {apt.pet?.name}</p>
                     </div>
                   </div>
-                  <span className={`px-3 py-1 text-xs font-medium rounded-full border ${getStatusColor(apt.status)}`}>
+                  <span
+                    className={`px-3 py-1 text-xs font-medium rounded-full border ${getStatusColor(
+                      apt.status,
+                    )}`}
+                  >
                     {apt.status}
                   </span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-xs text-gray-500 mb-1">Service</p>
-                    <p className="font-medium text-gray-900">{apt.service?.service_name}</p>
+                    <p className="text-xs text-gray-500 mb-1">Services</p>
+                    <p className="font-medium text-gray-900">
+                      {formatServices(apt)}
+                    </p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 mb-1">Doctor</p>
-                    <p className="font-medium text-gray-900">{apt.staff?.full_name}</p>
+                    <p className="font-medium text-gray-900">
+                      {apt.staff?.full_name || 'Not assigned yet'}
+                    </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500 mb-1">Date & Time</p>
+                    <p className="text-xs text-gray-500 mb-1">Date &amp; Time</p>
                     <p className="font-medium text-gray-900 flex items-center gap-1">
                       <Clock size={14} />
                       {new Date(apt.appointment_date).toLocaleString()}
@@ -95,7 +120,9 @@ export default function OwnerAppointmentsPage() {
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 mb-1">Pet</p>
-                    <p className="font-medium text-gray-900">{apt.pet?.name} ({apt.pet?.species})</p>
+                    <p className="font-medium text-gray-900">
+                      {apt.pet?.name} ({apt.pet?.species})
+                    </p>
                   </div>
                 </div>
               </div>

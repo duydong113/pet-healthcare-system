@@ -1,21 +1,24 @@
-import { IsNumber, IsDate, IsEnum } from 'class-validator';
+// backend/src/modules/appointment/dto/create-appointment.dto.ts
+import { IsNumber, IsDate, IsEnum, IsArray, IsString, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
 export class CreateAppointmentDto {
-  @ApiProperty()
+  @ApiProperty({ example: 1 })
   @IsNumber()
   pet_id: number;
 
-  @ApiProperty()
-  @IsNumber()
-  service_id: number;
+  @ApiProperty({ example: [1, 2, 3], description: 'Array of service IDs' })
+  @IsArray()
+  @IsNumber({}, { each: true })
+  service_ids: number[];
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsNumber()
-  staff_id: number;
+  @IsOptional()
+  staff_id?: number; // Optional - Owner không cần chọn staff
 
-  @ApiProperty()
+  @ApiProperty({ example: 1 })
   @IsNumber()
   owner_id: number;
 
@@ -24,7 +27,13 @@ export class CreateAppointmentDto {
   @IsDate()
   appointment_date: Date;
 
-  @ApiProperty({ example: 'Pending' })
-  @IsEnum(['Pending', 'Completed', 'Canceled'])
-  status: string;
+  @ApiProperty({ example: 'My pet needs vaccination', required: false })
+  @IsString()
+  @IsOptional()
+  note?: string;
+
+  @ApiProperty({ example: 'Pending', enum: ['Pending', 'Assigned', 'Confirmed', 'Completed', 'Canceled'] })
+  @IsEnum(['Pending', 'Assigned', 'Confirmed', 'Completed', 'Canceled'])
+  @IsOptional()
+  status?: string;
 }

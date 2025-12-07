@@ -15,6 +15,7 @@ import { Staff } from './staff.entity';
 import { PetOwner } from './pet-owner.entity';
 import { MedicalRecord } from './medical-record.entity';
 import { Invoice } from './invoice.entity';
+import { AppointmentService } from './appointment-service.entity';
 
 @Entity('appointments')
 export class Appointment {
@@ -24,11 +25,11 @@ export class Appointment {
   @Column()
   pet_id: number;
 
-  @Column()
-  service_id: number;
+  @Column({ nullable: true })
+  service_id: number; // Giữ lại để backward compatible, nhưng sẽ dùng appointmentServices
 
-  @Column()
-  staff_id: number;
+  @Column({ nullable: true })
+  staff_id: number; // NULL khi chưa assign
 
   @Column({ nullable: true })
   owner_id: number;
@@ -38,10 +39,13 @@ export class Appointment {
 
   @Column({
     type: 'enum',
-    enum: ['Pending', 'Completed', 'Canceled'],
+    enum: ['Pending', 'Assigned', 'Confirmed', 'Completed', 'Canceled'],
     default: 'Pending',
   })
   status: string;
+
+  @Column({ type: 'text', nullable: true })
+  note: string; // Ghi chú của pet owner
 
   @ManyToOne(() => Pet, (pet) => pet.appointments)
   @JoinColumn({ name: 'pet_id' })
@@ -64,6 +68,9 @@ export class Appointment {
 
   @OneToOne(() => Invoice, (invoice) => invoice.appointment)
   invoice: Invoice;
+
+  @OneToMany(() => AppointmentService, (as) => as.appointment)
+  appointmentServices: AppointmentService[];
 
   @CreateDateColumn()
   created_at: Date;

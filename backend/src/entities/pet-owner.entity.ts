@@ -27,6 +27,9 @@ export class PetOwner {
   @Column({ length: 255 })
   password: string;
 
+  @Column({ length: 500, nullable: true })
+  avatar_url: string; // URL ảnh đại diện
+
   @OneToMany(() => Pet, (pet) => pet.owner)
   pets: Pet[];
 
