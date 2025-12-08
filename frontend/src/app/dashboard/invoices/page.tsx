@@ -4,15 +4,21 @@ import { useEffect, useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { invoiceAPI, appointmentAPI, petOwnerAPI } from '@/services/api';
 import { Plus, Edit, Trash2, X, DollarSign } from 'lucide-react';
-import { toFixed, formatPrice } from '@/lib/utils';
+import { formatPrice } from '@/lib/utils';
 
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<any[]>([]);
   const [appointments, setAppointments] = useState<any[]>([]);
   const [owners, setOwners] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<any>(null);
+
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [selectedHistory, setSelectedHistory] = useState<any[]>([]);
+  const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
+
   const [formData, setFormData] = useState({
     appointment_id: '',
     owner_id: '',
@@ -31,14 +37,15 @@ export default function InvoicesPage() {
 
   const fetchData = async () => {
     try {
-      const [invRes, aptRes, ownRes] = await Promise.all([
+      const [invRes, appRes, ownerRes] = await Promise.all([
         invoiceAPI.getAll(),
         appointmentAPI.getAll(),
         petOwnerAPI.getAll(),
       ]);
+
       setInvoices(invRes.data);
-      setAppointments(aptRes.data);
-      setOwners(ownRes.data);
+      setAppointments(appRes.data);
+      setOwners(ownerRes.data);
     } catch (error) {
       console.error('Error:', error);
     } finally {
@@ -46,64 +53,12 @@ export default function InvoicesPage() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const data = {
-        ...formData,
-        appointment_id: parseInt(formData.appointment_id),
-        owner_id: parseInt(formData.owner_id),
-        base_amount: parseFloat(formData.base_amount),
-        additional_cost: parseFloat(formData.additional_cost),
-        total_amount: parseFloat(formData.total_amount),
-        payment_date: formData.payment_date ? new Date(formData.payment_date) : undefined,
-      };
-      if (editing) {
-        await invoiceAPI.update(editing.invoice_id, data);
-      } else {
-        await invoiceAPI.create(data);
-      }
-      setShowModal(false);
-      resetForm();
-      fetchData();
-    } catch (error: any) {
-      alert(error.response?.data?.message || 'Error saving invoice');
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    if (confirm('Delete this invoice?')) {
-      try {
-        await invoiceAPI.delete(id);
-        fetchData();
-      } catch (error) {
-        alert('Error deleting invoice');
-      }
-    }
-  };
-
-  const handleEdit = (invoice: any) => {
-    setEditing(invoice);
-    setFormData({
-      appointment_id: invoice.appointment_id,
-      owner_id: invoice.owner_id,
-      base_amount: invoice.base_amount,
-      additional_cost: invoice.additional_cost,
-      total_amount: invoice.total_amount,
-      payment_method: invoice.payment_method,
-      payment_status: invoice.payment_status,
-      payment_date: invoice.payment_date ? new Date(invoice.payment_date).toISOString().split('T')[0] : '',
-      issued_by: invoice.issued_by,
-    });
-    setShowModal(true);
-  };
-
   const resetForm = () => {
     setFormData({
       appointment_id: '',
       owner_id: '',
       base_amount: '',
-      additional_cost: '0',
+      additional_cost: '',
       total_amount: '',
       payment_method: 'Cash',
       payment_status: 'Pending',
@@ -113,18 +68,62 @@ export default function InvoicesPage() {
     setEditing(null);
   };
 
-  const calculateTotal = () => {
-    const base = parseFloat(formData.base_amount) || 0;
-    const additional = parseFloat(formData.additional_cost) || 0;
-    setFormData({ ...formData, total_amount: (base + additional).toFixed(2) });
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const payload: any = {
+      appointment_id: parseInt(formData.appointment_id),
+      owner_id: parseInt(formData.owner_id),
+      base_amount: Number(formData.base_amount),
+      additional_cost: Number(formData.additional_cost),
+      total_amount: Number(formData.total_amount),
+      payment_method: formData.payment_method,
+      payment_status: formData.payment_status,
+      payment_date: formData.payment_date ? new Date(formData.payment_date) : null,
+      issued_by: formData.issued_by,
+    };
+
+    try {
+      if (editing) {
+        await invoiceAPI.update(editing.invoice_id, payload);
+      } else {
+        await invoiceAPI.create(payload);
+      }
+
+      setShowModal(false);
+      resetForm();
+      fetchData();
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Error saving invoice');
+    }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Pending': return 'bg-yellow-100 text-yellow-800';
-      case 'Paid': return 'bg-green-100 text-green-800';
-      case 'Canceled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+  const handleEdit = (inv: any) => {
+    setEditing(inv);
+    setFormData({
+      appointment_id: String(inv.appointment_id),
+      owner_id: String(inv.owner_id),
+      base_amount: String(inv.base_amount),
+      additional_cost: String(inv.additional_cost),
+      total_amount: String(inv.total_amount),
+      payment_method: inv.payment_method,
+      payment_status: inv.payment_status,
+      payment_date: inv.payment_date
+        ? new Date(inv.payment_date).toISOString().slice(0, 10)
+        : '',
+      issued_by: inv.issued_by,
+    });
+    setShowModal(true);
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('Delete invoice?')) return;
+
+    try {
+      await invoiceAPI.delete(id);
+      fetchData();
+    } catch (err) {
+      alert('Error deleting invoice');
     }
   };
 
@@ -134,295 +133,282 @@ export default function InvoicesPage() {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Invoices</h1>
-            <p className="text-gray-600 mt-1">Manage payment invoices</p>
+            <p className="text-gray-600">Manage payments and billing</p>
           </div>
-          <button onClick={() => { resetForm(); setShowModal(true); }} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-lg">
+
+          <button
+            onClick={() => {
+              resetForm();
+              setShowModal(true);
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700"
+          >
             <Plus size={20} />
-            Create Invoice
+            New Invoice
           </button>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+        <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
           {loading ? (
             <div className="p-8 text-center">Loading...</div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Invoice #</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Owner</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Base Amount</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Additional</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Payment Method</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+            <table className="w-full text-left">
+              <thead className="bg-gray-50 border-b">
+                <tr>
+                  <th className="px-6 py-3 text-xs font-bold text-black">ID</th>
+                  <th className="px-6 py-3 text-xs font-bold text-black">Appointment</th>
+                  <th className="px-6 py-3 text-xs font-bold text-black">Owner</th>
+                  <th className="px-6 py-3 text-xs font-bold text-black">Total</th>
+                  <th className="px-6 py-3 text-xs font-bold text-black">Status</th>
+                  <th className="px-6 py-3 text-xs font-bold text-black">Actions</th>
+                </tr>
+              </thead>
+
+              <tbody className="divide-y">
+                {invoices.map((inv) => (
+                  <tr key={inv.invoice_id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 text-black">{inv.invoice_id}</td>
+                    <td className="px-6 py-4 text-black">{inv.appointment_id}</td>
+                    <td className="px-6 py-4 text-black">{inv.owner?.full_name}</td>
+                    <td className="px-6 py-4 text-black font-semibold">
+                      {formatPrice(inv.total_amount)}
+                    </td>
+                    <td className="px-6 py-4 text-black">{inv.payment_status}</td>
+
+                    <td className="px-6 py-4">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleEdit(inv)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded"
+                        >
+                          <Edit size={18} />
+                        </button>
+
+                        <button
+                          onClick={() => handleDelete(inv.invoice_id)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+
+                        {/* View payment history */}
+                        <button
+                          onClick={() => {
+                            setSelectedInvoice(inv);
+                            setSelectedHistory(inv.payment_history || []);
+                            setShowHistoryModal(true);
+                          }}
+                          className="p-2 text-amber-600 hover:bg-amber-50 rounded"
+                        >
+                          <DollarSign size={18} />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y">
-                  {invoices.map((inv) => (
-                    <tr key={inv.invoice_id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 text-black text-sm font-medium">#{inv.invoice_id}</td>
-                      <td className="px-6 py-4 text-black text-sm">{inv.owner?.full_name}</td>
-                      <td className="px-6 py-4 text-black text-sm">{formatPrice(inv.base_amount)}</td>
-                      <td className="px-6 py-4 text-black text-sm">{formatPrice(inv.additional_cost)}</td>
-                      <td className="px-6 py-4">
-                        <span className="text-sm font-bold text-green-600">{formatPrice(inv.total_amount)}</span>
-                      </td>
-                      <td className="px-6 py-4 text-black text-sm">{inv.payment_method}</td>
-                      <td className="px-6 py-4">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(inv.payment_status)}`}>
-                          {inv.payment_status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex gap-2">
-                          <button onClick={() => handleEdit(inv)} className="p-2 text-blue-600 hover:bg-blue-50 rounded">
-                            <Edit size={18} />
-                          </button>
-                          <button onClick={() => handleDelete(inv.invoice_id)} className="p-2 text-red-600 hover:bg-red-50 rounded">
-                            <Trash2 size={18} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           )}
         </div>
       </div>
-{showModal && (
-  <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 overflow-y-auto">
-    <div className="flex justify-center min-h-screen py-10">
-      <div className="bg-white rounded-2xl p-8 w-[90%] max-w-3xl shadow-2xl mx-auto relative mt-10 mb-10">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6 border-b pb-3 sticky top-0 bg-white z-10">
-          <h2 className="text-2xl font-semibold text-gray-800">
-            {editing ? 'Edit Invoice' : 'Create Invoice'}
-          </h2>
-          <button
-            onClick={() => {
-              setShowModal(false);
-              resetForm();
-            }}
-            className="text-gray-500 hover:text-gray-800 transition-colors"
-          >
-            <X size={24} />
-          </button>
+
+      {/* ------------------ Modal Create/Edit Invoice ------------------ */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white w-full max-w-lg  p-6 text-black rounded-2xl shadow-xl">
+            <div className="flex justify-between  items-center mb-4 border-b pb-2">
+              <h2 className="text-xl text-black font-semibold">
+                {editing ? 'Edit Invoice' : 'New Invoice'}
+              </h2>
+              <button onClick={() => setShowModal(false)}>
+                <X size={22} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Appointment */}
+              <div>
+                <label className="text-sm text-black font-medium">Appointment *</label>
+                <select
+                  value={formData.appointment_id}
+                  onChange={(e) =>
+                    setFormData({ ...formData, appointment_id: e.target.value })
+                  }
+                  className="w-full px-3 py-2 border rounded-lg"
+                  required
+                >
+                  <option value="">Select</option>
+                  {appointments.map((a) => (
+                    <option key={a.appointment_id} value={a.appointment_id}>
+                      #{a.appointment_id} – {a.pet?.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Owner */}
+              <div>
+                <label className="text-sm font-medium">Owner *</label>
+                <select
+                  value={formData.owner_id}
+                  onChange={(e) =>
+                    setFormData({ ...formData, owner_id: e.target.value })
+                  }
+                  className="w-full px-3 py-2 border rounded-lg"
+                  required
+                >
+                  <option value="">Select</option>
+                  {owners.map((o) => (
+                    <option key={o.owner_id} value={o.owner_id}>
+                      {o.full_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Amounts */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Base Amount</label>
+                  <input
+                    type="number"
+                    value={formData.base_amount}
+                    onChange={(e) =>
+                      setFormData({ ...formData, base_amount: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium">Additional Cost</label>
+                  <input
+                    type="number"
+                    value={formData.additional_cost}
+                    onChange={(e) =>
+                      setFormData({ ...formData, additional_cost: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium">Total Amount</label>
+                <input
+                  type="number"
+                  value={formData.total_amount}
+                  onChange={(e) =>
+                    setFormData({ ...formData, total_amount: e.target.value })
+                  }
+                  className="w-full px-3 py-2 border rounded-lg"
+                />
+              </div>
+
+              {/* Status */}
+              <div>
+                <label className="text-sm font-medium">Payment Status</label>
+                <select
+                  value={formData.payment_status}
+                  onChange={(e) =>
+                    setFormData({ ...formData, payment_status: e.target.value })
+                  }
+                  className="w-full px-3 py-2 border rounded-lg"
+                >
+                  <option>Pending</option>
+                  <option>Paid</option>
+                  <option>Canceled</option>
+                </select>
+              </div>
+
+              {/* Payment Date */}
+              <div>
+                <label className="text-sm font-medium">Payment Date</label>
+                <input
+                  type="date"
+                  value={formData.payment_date}
+                  onChange={(e) =>
+                    setFormData({ ...formData, payment_date: e.target.value })
+                  }
+                  className="w-full px-3 py-2 border rounded-lg"
+                />
+              </div>
+
+              {/* Issued By */}
+              <div>
+                <label className="text-sm font-medium">Issued By *</label>
+                <input
+                  type="text"
+                  value={formData.issued_by}
+                  onChange={(e) =>
+                    setFormData({ ...formData, issued_by: e.target.value })
+                  }
+                  className="w-full px-3 py-2 border rounded-lg"
+                  required
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="w-1/2 py-2 border rounded-lg"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="w-1/2 py-2 bg-blue-600 text-white rounded-lg"
+                >
+                  {editing ? 'Update' : 'Create'}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
+      )}
 
-        {/* Form */}
-        <form
-          onSubmit={handleSubmit}
-          className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2"
-        >
-          {/* Owner */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Owner *
-            </label>
-            <select
-              value={formData.owner_id}
-              onChange={(e) =>
-                setFormData({ ...formData, owner_id: e.target.value })
-              }
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 
-                         focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
-              required
-            >
-              <option value="">Select Owner</option>
-              {owners.map((o) => (
-                <option key={o.owner_id} value={o.owner_id}>
-                  {o.full_name}
-                </option>
-              ))}
-            </select>
+      {/* ------------------ Payment History Modal ------------------ */}
+      {showHistoryModal && selectedInvoice && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-lg shadow-xl">
+            <div className="flex justify-between items-center border-b pb-2 mb-4">
+              <h2 className="text-xl text-black font-semibold">
+                Payment History – Invoice #{selectedInvoice.invoice_id}
+              </h2>
+              <button
+                onClick={() => setShowHistoryModal(false)}
+                className="text-black-600"
+              >
+                <X size={22} color='red' />
+              </button>
+            </div>
+
+            {selectedHistory.length === 0 ? (
+              <p className="text-black-600 text-sm">No history yet.</p>
+            ) : (
+              <ul className="space-y-3 max-h-80 overflow-y-auto">
+                {selectedHistory.map((h, idx) => (
+                  <li
+                    key={idx}
+                    className="p-3 border rounded-lg bg-black-50 flex justify-between"
+                  >
+                    <div>
+                      <p className="font-medium text-black">Status: {h.status}</p>
+                      {h.changed_by && (
+                        <p className="text-xs text-black-500 text-black">By: {h.changed_by}</p>
+                      )}
+                    </div>
+                    <p className="text-xs text-black-500 text-black">
+                      {new Date(h.payment_date).toLocaleString()}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
-
-          {/* Appointment */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Appointment *
-            </label>
-            <select
-              value={formData.appointment_id}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  appointment_id: e.target.value,
-                })
-              }
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 
-                         focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
-              required
-            >
-              <option value="">Select Appointment</option>
-              {appointments.map((a) => (
-                <option key={a.appointment_id} value={a.appointment_id}>
-                  #{a.appointment_id} - {a.pet?.name} (
-                  {new Date(a.appointment_date).toLocaleDateString()})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Base Amount */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Base Amount ($) *
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              value={formData.base_amount}
-              onChange={(e) =>
-                setFormData({ ...formData, base_amount: e.target.value })
-              }
-              onBlur={calculateTotal}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 
-                         focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
-              required
-            />
-          </div>
-
-          {/* Additional Cost */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Additional Cost ($)
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              value={formData.additional_cost}
-              onChange={(e) =>
-                setFormData({ ...formData, additional_cost: e.target.value })
-              }
-              onBlur={calculateTotal}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 
-                         focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
-            />
-          </div>
-
-          {/* Total Amount – full width */}
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Total Amount ($) *
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              value={formData.total_amount}
-              onChange={(e) =>
-                setFormData({ ...formData, total_amount: e.target.value })
-              }
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 
-                         focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
-              required
-            />
-          </div>
-
-          {/* Payment Method */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Payment Method *
-            </label>
-            <select
-              value={formData.payment_method}
-              onChange={(e) =>
-                setFormData({ ...formData, payment_method: e.target.value })
-              }
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 
-                         focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
-              required
-            >
-              <option value="Cash">Cash</option>
-              <option value="Credit Card">Credit Card</option>
-              <option value="Bank Transfer">Bank Transfer</option>
-              <option value="E-Wallet">E-Wallet</option>
-            </select>
-          </div>
-
-          {/* Payment Status */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Payment Status *
-            </label>
-            <select
-              value={formData.payment_status}
-              onChange={(e) =>
-                setFormData({ ...formData, payment_status: e.target.value })
-              }
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 
-                         focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
-              required
-            >
-              <option value="Pending">Pending</option>
-              <option value="Paid">Paid</option>
-              <option value="Canceled">Canceled</option>
-            </select>
-          </div>
-
-          {/* Payment Date */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Payment Date
-            </label>
-            <input
-              type="date"
-              value={formData.payment_date}
-              onChange={(e) =>
-                setFormData({ ...formData, payment_date: e.target.value })
-              }
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 
-                         focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
-            />
-          </div>
-
-          {/* Issued By */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Issued By *
-            </label>
-            <input
-              type="text"
-              value={formData.issued_by}
-              onChange={(e) =>
-                setFormData({ ...formData, issued_by: e.target.value })
-              }
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 
-                         focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
-              required
-            />
-          </div>
-
-          {/* Buttons – full width */}
-          <div className="flex gap-4 pt-6 md:col-span-2">
-            <button
-              type="button"
-              onClick={() => {
-                setShowModal(false);
-                resetForm();
-              }}
-              className="flex-1 px-5 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="flex-1 px-5 py-2.5 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
-            >
-              {editing ? 'Update' : 'Create'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-)}
-
+        </div>
+      )}
     </DashboardLayout>
   );
 }

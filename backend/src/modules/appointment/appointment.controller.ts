@@ -39,16 +39,18 @@ export class AppointmentController {
     return this.appointmentService.findPendingAppointments();
   }
 
-  @Get('available-slots')
-  @ApiOperation({ summary: 'Get available time slots' })
-  @ApiQuery({ name: 'date', example: '2024-12-25' })
-  @ApiQuery({ name: 'staffId', required: false })
-  getAvailableSlots(
-    @Query('date') date: string,
-    @Query('staffId') staffId?: number,
-  ) {
-    return this.appointmentService.getAvailableTimeSlots(date, staffId);
-  }
+ @Get('available-slots')
+@ApiOperation({ summary: 'Get available time slots' })
+@ApiQuery({ name: 'date', example: '2024-12-25' })
+@ApiQuery({ name: 'staffId', required: false })
+getAvailableSlots(
+  @Query('date') date: string,
+  @Query('staffId') staffId?: string,
+) {
+  const staffIdNum = staffId ? parseInt(staffId, 10) : undefined;
+  return this.appointmentService.getAvailableTimeSlots(date, staffIdNum);
+}
+
 
   @Get(':id')
   @ApiOperation({ summary: 'Get an appointment by ID' })

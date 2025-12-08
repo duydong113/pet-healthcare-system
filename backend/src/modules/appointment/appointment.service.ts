@@ -107,8 +107,10 @@ export class AppointmentService {
         },
       )
       .andWhere('appointment.status NOT IN (:...statuses)', {
-        statuses: ['Canceled'],
-      });
+  statuses: ['Canceled', 'Archived'],
+});
+
+
 
     if (staffId) {
       queryBuilder.andWhere('appointment.staff_id = :staffId', { staffId });

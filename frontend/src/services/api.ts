@@ -51,7 +51,12 @@ export const appointmentAPI = {
   create: (data: any) => axios.post('/appointments', data),
   update: (id: number, data: any) => axios.patch(`/appointments/${id}`, data),
   delete: (id: number) => axios.delete(`/appointments/${id}`),
+
+  // 🆕 Lấy danh sách slot trống theo ngày (và optional staffId)
+  getAvailableSlots: (params: { date: string; staffId?: number | string }) =>
+    axios.get('/appointments/available-slots', { params }),
 };
+
 
 // Medical Record APIs
 export const medicalRecordAPI = {

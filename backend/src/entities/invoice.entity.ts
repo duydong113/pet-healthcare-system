@@ -47,6 +47,14 @@ export class Invoice {
   @Column({ length: 100 })
   issued_by: string;
 
+  // 🆕 Thêm lịch sử thanh toán
+  @Column({ type: 'simple-json', nullable: true })
+  payment_history: {
+    status: string;
+    payment_date: string;
+    changed_by?: string;
+  }[];
+
   @OneToOne(() => Appointment, (appointment) => appointment.invoice)
   @JoinColumn({ name: 'appointment_id' })
   appointment: Appointment;

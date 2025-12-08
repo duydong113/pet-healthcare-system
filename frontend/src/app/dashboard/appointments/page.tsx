@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { appointmentAPI, petAPI, serviceAPI, staffAPI, petOwnerAPI } from '@/services/api';
 import { Plus, Edit, Trash2, X, Calendar } from 'lucide-react';
+const [showHistoryModal, setShowHistoryModal] = useState(false);
+const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
+const [selectedHistory, setSelectedHistory] = useState<any[]>([]);
 
 export default function AppointmentsPage() {
   const [appointments, setAppointments] = useState<any[]>([]);
@@ -194,7 +197,9 @@ export default function AppointmentsPage() {
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       Actions
+            
                     </th>
+
                   </tr>
                 </thead>
                 <tbody className="divide-y">
@@ -443,6 +448,57 @@ export default function AppointmentsPage() {
           </div>
         </div>
       )}
+      {showHistoryModal && selectedInvoice && (
+  <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center">
+    <div className="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl">
+      <div className="flex justify-between items-center mb-4 border-b pb-2">
+        <h2 className="text-xl font-semibold text-gray-800">
+          Payment History – Invoice #{selectedInvoice.invoice_id}
+        </h2>
+        <button
+          onClick={() => {
+            setShowHistoryModal(false);
+            setSelectedInvoice(null);
+            setSelectedHistory([]);
+          }}
+          className="text-gray-500 hover:text-gray-800"
+        >
+          <X size={22} />
+        </button>
+      </div>
+
+      {(!selectedHistory || selectedHistory.length === 0) ? (
+        <p className="text-sm text-gray-600">No payment history yet.</p>
+      ) : (
+        <ul className="space-y-3 max-h-80 overflow-y-auto">
+          {selectedHistory.map((h, idx) => (
+            <li
+              key={idx}
+              className="flex justify-between items-start border rounded-lg px-3 py-2 bg-gray-50"
+            >
+              <div>
+                <p className="text-sm font-semibold text-gray-800">
+                  Status: {h.status}
+                </p>
+                {h.changed_by && (
+                  <p className="text-xs text-gray-500">
+                    by {h.changed_by}
+                  </p>
+                )}
+              </div>
+              <p className="text-xs text-gray-500">
+                {h.payment_date
+                  ? new Date(h.payment_date).toLocaleString()
+                  : ''}
+              </p>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </div>
+)}
+
     </DashboardLayout>
   );
 }

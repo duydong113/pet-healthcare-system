@@ -32,8 +32,12 @@ export class CreateAppointmentDto {
   @IsOptional()
   note?: string;
 
-  @ApiProperty({ example: 'Pending', enum: ['Pending', 'Assigned', 'Confirmed', 'Completed', 'Canceled'] })
-  @IsEnum(['Pending', 'Assigned', 'Confirmed', 'Completed', 'Canceled'])
-  @IsOptional()
-  status?: string;
+ @ApiProperty({
+  example: 'Pending',
+  enum: ['Pending', 'Assigned', 'Confirmed', 'Completed', 'Canceled', 'Archived'],
+})
+@IsEnum(['Pending', 'Assigned', 'Confirmed', 'Completed', 'Canceled', 'Archived'])
+@IsOptional()
+status?: string;
+
 }

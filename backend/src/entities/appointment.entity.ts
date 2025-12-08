@@ -38,11 +38,12 @@ export class Appointment {
   appointment_date: Date;
 
   @Column({
-    type: 'enum',
-    enum: ['Pending', 'Assigned', 'Confirmed', 'Completed', 'Canceled'],
-    default: 'Pending',
-  })
-  status: string;
+  type: 'enum',
+  enum: ['Pending', 'Assigned', 'Confirmed', 'Completed', 'Canceled', 'Archived'],
+  default: 'Pending',
+})
+status: string;
+
 
   @Column({ type: 'text', nullable: true })
   note: string; // Ghi chú của pet owner
