@@ -39,9 +39,8 @@ export default function OwnerInvoicesPage() {
   };
 
   const totalUnpaid = invoices
-    .filter(i => i.payment_status === 'Pending')
-    .reduce((sum, i) => sum + parseFloat(i.total_amount), 0);
-
+  .filter(i => i.payment_status === 'Pending')
+  .reduce((sum, i) => sum + (typeof i.total_amount === 'number' ? i.total_amount : parseFloat(i.total_amount || 0)), 0);
   return (
     <PetOwnerLayout>
       <div className="space-y-6">
@@ -51,7 +50,7 @@ export default function OwnerInvoicesPage() {
         </div>
 
         {/* Summary Card */}
-        {invoices.length > 0 && (
+        {invoices.length > 0 && totalUnpaid > 0 && (
           <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-xl p-6 text-white shadow-lg">
             <div className="flex items-center justify-between">
               <div>
@@ -99,15 +98,15 @@ export default function OwnerInvoicesPage() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                   <div>
                     <p className="text-xs text-gray-500 mb-1">Base Amount</p>
-                    <p className="font-medium text-gray-900">${invoice.base_amount.toFixed(2)}</p>
+                    <p className="font-medium text-gray-900">${parseFloat(invoice.base_amount || 0).toFixed(2)}</p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 mb-1">Additional Cost</p>
-                    <p className="font-medium text-gray-900">${invoice.additional_cost.toFixed(2)}</p>
+                   <p className="font-medium text-gray-900">${parseFloat(invoice.additional_cost || 0).toFixed(2)}</p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 mb-1">Total Amount</p>
-                    <p className="font-bold text-green-600 text-lg">${invoice.total_amount.toFixed(2)}</p>
+                    <p className="font-bold text-green-600 text-lg">${parseFloat(invoice.total_amount || 0).toFixed(2)}</p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 mb-1">Payment Method</p>

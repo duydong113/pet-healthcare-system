@@ -14,15 +14,19 @@ import {
   Menu,
   X,
   Phone,
+  Info, // ⬅️ Thêm icon cho About Us
 } from 'lucide-react';
+import ChatWidget from '@/components/owner/ChatWidget';
 
 const ownerMenuItems = [
   { icon: LayoutDashboard, label: 'Home', href: '/owner/dashboard' },
+  { icon: Info, label: 'About Us', href: '/owner/about-us' },
   { icon: PawPrint, label: 'My Pets', href: '/owner/pets' },
   { icon: Calendar, label: 'Appointments', href: '/owner/appointments' },
   { icon: FileText, label: 'Records', href: '/owner/medical-records' },
   { icon: Receipt, label: 'Invoices', href: '/owner/invoices' },
-  // { icon: User, label: 'Profile', href: '/owner/profile' },
+  
+  
 ];
 
 export default function PetOwnerLayout({ children }: { children: React.ReactNode }) {
@@ -79,9 +83,9 @@ export default function PetOwnerLayout({ children }: { children: React.ReactNode
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-pink-500">
-                  VNUPet
+                  PawPerfect
                 </h1>
-                <p className="text-xs text-gray-500 font-medium">Pet's Lover</p>
+                <p className="text-xs text-gray-500 font-medium">Pet&apos;s Management</p>
               </div>
             </Link>
 
@@ -110,13 +114,13 @@ export default function PetOwnerLayout({ children }: { children: React.ReactNode
             {/* Right Side Actions */}
             <div className="hidden lg:flex items-center gap-4">
               {/* Phone */}
-              <a
+              {/* <a
                 href="tel:384-129-293-39"
                 className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-400 to-pink-400 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200"
               >
                 <Phone size={18} />
                 <span className="hidden xl:inline">384-129-293-39</span>
-              </a>
+              </a> */}
 
               {/* User Dropdown */}
               <div className="relative group">
@@ -214,13 +218,13 @@ export default function PetOwnerLayout({ children }: { children: React.ReactNode
             })}
 
             {/* Phone Mobile */}
-            <a
+            {/* <a
               href="tel:0972344865"
               className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-orange-400 to-pink-400 text-white rounded-xl font-semibold shadow-lg"
             >
               <Phone size={20} />
               <span>0972344865</span>
-            </a> 
+            </a> */}
 
             {/* Logout Mobile */}
             <button
@@ -240,54 +244,22 @@ export default function PetOwnerLayout({ children }: { children: React.ReactNode
       </main>
 
       {/* Footer */}
-            {/* Footer */}
-      <footer className="mt-16 bg-gradient-to-r from-orange-50 via-pink-50 to-orange-50 border-t border-orange-100/60">
+      <footer className="mt-16 bg-gradient-to-r from-orange-50 via-pink-50 to-orange-50 border-top border-orange-100/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
-
-            {/* Brand + Subscribe */}
+            {/* Brand */}
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-2xl">🐾</span>
                 <span className="text-2xl font-bold">
-                  <span className="text-gray-900">VNU</span>
-                  <span className="text-orange-500">Pet</span>
+                  <span className="text-gray-900">Paw</span>
+                  <span className="text-orange-500">Perfect</span>
                 </span>
               </div>
               <p className="text-sm text-gray-600 mb-5">
                 Keep track of your pet&apos;s health, appointments and records in one
                 friendly place.
               </p>
-
- <form
-  onSubmit={(e) => e.preventDefault()}
-  className="flex bg-white/90 rounded-full shadow-lg max-w-md overflow-hidden"
->
-
-  {/* Input chiếm 50% */}
-  <input
-    type="email"
-    placeholder="Email address"
-    className="w-1/2 px-4 py-3 text-sm bg-transparent outline-none text-gray-700 placeholder-gray-400"
-  />
-
-  {/* Button chiếm 50%, bo cả bên trái */}
-  <button
-    type="submit"
-    className="
-      w-1/2 py-3 text-sm font-semibold text-white 
-      bg-gradient-to-r from-orange-400 to-pink-500 
-      hover:from-orange-500 hover:to-pink-600 
-      transition-all whitespace-nowrap text-center
-      rounded-l-full          /* 👈 bo góc bên trái */
-      "
-  >
-    Subscribe
-  </button>
-</form>
-
-
-
             </div>
 
             {/* Address */}
@@ -298,22 +270,41 @@ export default function PetOwnerLayout({ children }: { children: React.ReactNode
               <p className="text-sm text-gray-600">+84 036-722-8955</p>
               <p className="text-sm text-gray-600">support@vnupet.com</p>
               <p className="text-sm text-gray-600 mt-2">
-                1 VNU Street, Cau Giay<br />
+                1 VNU Street, Cau Giay
+                <br />
                 Ha Noi, Viet Nam
               </p>
             </div>
 
             {/* Links */}
             <div>
-              <h3 className="text-base font-semibold text-gray-900 mb-3">
-                Links
-              </h3>
+              <h3 className="text-base font-semibold text-gray-900 mb-3">Links</h3>
               <ul className="space-y-2 text-sm text-gray-600">
-                <li><a href="#" className="hover:text-orange-500">About Us</a></li>
-                <li><a href="#" className="hover:text-orange-500">Grooming</a></li>
-                <li><a href="#" className="hover:text-orange-500">Contact Us</a></li>
-                <li><a href="#" className="hover:text-orange-500">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-orange-500">Terms</a></li>
+                <li>
+                  <Link href="/owner/about-us" className="hover:text-orange-500">
+                    About Us
+                  </Link>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-orange-500">
+                    Grooming
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-orange-500">
+                    Contact Us
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-orange-500">
+                    Privacy Policy
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-orange-500">
+                    Terms
+                  </a>
+                </li>
               </ul>
             </div>
 
@@ -322,24 +313,15 @@ export default function PetOwnerLayout({ children }: { children: React.ReactNode
               <h3 className="text-base font-semibold text-gray-900 mb-3">
                 Opening Hours
               </h3>
-              <ul className="space-y-1 text-sm text-gray-600">
-                <li>Mon–Tue: 09:00–18:00</li>
-                <li>Wed: 09:00–18:00</li>
-                <li>Thu–Fri: 09:00–18:00</li>
-                <li>Sat: 10:00–17:00</li>
-                <li>Sun: 10:00–16:00</li>
-              </ul>
+              <p className="text-sm text-gray-600">Mon – Fri: 08:00 – 20:00</p>
+              <p className="text-sm text-gray-600">Sat – Sun: 09:00 – 18:00</p>
             </div>
-          </div>
-
-          {/* Bottom mini line */}
-          <div className="mt-8 flex items-center justify-between text-[11px] sm:text-xs text-gray-500">
-            <span>© 2025 VNUPet. All rights reserved.</span>
-            <span className="hidden sm:inline">Made with ❤️ for every pet & pet lover.</span>
           </div>
         </div>
       </footer>
 
+      {/* 🔥 AI Chat Widget cho toàn bộ layout */}
+      <ChatWidget />
     </div>
   );
 }

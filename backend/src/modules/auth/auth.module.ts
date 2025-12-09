@@ -6,6 +6,8 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { Staff } from '../../entities/staff.entity';
 import { PetOwner } from '../../entities/pet-owner.entity';
+import { JwtStrategy } from './jwt.strategy';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Module({
   imports: [
@@ -20,6 +22,11 @@ import { PetOwner } from '../../entities/pet-owner.entity';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    JwtAuthGuard,
+  ],
+  exports: [JwtAuthGuard],
 })
 export class AuthModule {}

@@ -68,15 +68,81 @@ export default function InvoicesPage() {
     setEditing(null);
   };
 
+  /** Tính tổng tiền service trong 1 appointment */
+  const computeBaseAmountFromAppointment = (appointmentId: number): number => {
+    const apt = appointments.find(
+      (a: any) => a.appointment_id === appointmentId,
+    );
+    if (!apt) return 0;
+
+    // Nếu dùng bảng appointmentServices (nhiều service)
+    if (apt.appointmentServices?.length) {
+      return apt.appointmentServices.reduce((sum: number, as: any) => {
+        const price =
+          as.service?.price ??
+          as.service_price ??
+          0;
+        return sum + Number(price || 0);
+      }, 0);
+    }
+
+    // Trường hợp chỉ có 1 service trực tiếp trên appointment
+    if (apt.service?.price) {
+      return Number(apt.service.price || 0);
+    }
+
+    return 0;
+  };
+
+  /** Khi chọn appointment trong modal */
+  const handleChangeAppointment = (value: string) => {
+    const appointmentId = parseInt(value, 10);
+    const base = !isNaN(appointmentId)
+      ? computeBaseAmountFromAppointment(appointmentId)
+      : 0;
+    const additional = Number(formData.additional_cost) || 0;
+    const total = base + additional;
+
+    // tự gán owner theo appointment
+    let ownerIdStr = formData.owner_id;
+    const apt = appointments.find(
+      (a: any) => a.appointment_id === appointmentId,
+    );
+    if (apt?.owner_id) {
+      ownerIdStr = String(apt.owner_id);
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      appointment_id: value,
+      owner_id: ownerIdStr,
+      base_amount: base ? base.toString() : '',
+      total_amount: total ? total.toString() : '',
+    }));
+  };
+
+  /** Khi đổi Additional Cost → Total tự cập nhật */
+  const handleChangeAdditionalCost = (value: string) => {
+    const base = Number(formData.base_amount) || 0;
+    const additional = Number(value) || 0;
+    const total = base + additional;
+
+    setFormData((prev) => ({
+      ...prev,
+      additional_cost: value,
+      total_amount: total ? total.toString() : '',
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const payload: any = {
       appointment_id: parseInt(formData.appointment_id),
       owner_id: parseInt(formData.owner_id),
-      base_amount: Number(formData.base_amount),
-      additional_cost: Number(formData.additional_cost),
-      total_amount: Number(formData.total_amount),
+      base_amount: Number(formData.base_amount) || 0,
+      additional_cost: Number(formData.additional_cost) || 0,
+      total_amount: Number(formData.total_amount) || 0,
       payment_method: formData.payment_method,
       payment_status: formData.payment_status,
       payment_date: formData.payment_date ? new Date(formData.payment_date) : null,
@@ -103,9 +169,9 @@ export default function InvoicesPage() {
     setFormData({
       appointment_id: String(inv.appointment_id),
       owner_id: String(inv.owner_id),
-      base_amount: String(inv.base_amount),
-      additional_cost: String(inv.additional_cost),
-      total_amount: String(inv.total_amount),
+      base_amount: String(inv.base_amount ?? ''),
+      additional_cost: String(inv.additional_cost ?? ''),
+      total_amount: String(inv.total_amount ?? ''),
       payment_method: inv.payment_method,
       payment_status: inv.payment_status,
       payment_date: inv.payment_date
@@ -228,12 +294,12 @@ export default function InvoicesPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Appointment */}
               <div>
-                <label className="text-sm text-black font-medium">Appointment *</label>
+                <label className="text-sm text-black font-medium">
+                  Appointment *
+                </label>
                 <select
                   value={formData.appointment_id}
-                  onChange={(e) =>
-                    setFormData({ ...formData, appointment_id: e.target.value })
-                  }
+                  onChange={(e) => handleChangeAppointment(e.target.value)}
                   className="w-full px-3 py-2 border rounded-lg"
                   required
                 >
@@ -244,6 +310,9 @@ export default function InvoicesPage() {
                     </option>
                   ))}
                 </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  Base amount sẽ tự tính = tổng giá các dịch vụ trong appointment.
+                </p>
               </div>
 
               {/* Owner */}
@@ -264,6 +333,9 @@ export default function InvoicesPage() {
                     </option>
                   ))}
                 </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  Khi chọn appointment, hệ thống sẽ tự gợi ý đúng owner của lịch hẹn.
+                </p>
               </div>
 
               {/* Amounts */}
@@ -273,10 +345,8 @@ export default function InvoicesPage() {
                   <input
                     type="number"
                     value={formData.base_amount}
-                    onChange={(e) =>
-                      setFormData({ ...formData, base_amount: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border rounded-lg"
+                    readOnly
+                    className="w-full px-3 py-2 border rounded-lg bg-gray-100 cursor-not-allowed"
                   />
                 </div>
 
@@ -286,10 +356,14 @@ export default function InvoicesPage() {
                     type="number"
                     value={formData.additional_cost}
                     onChange={(e) =>
-                      setFormData({ ...formData, additional_cost: e.target.value })
+                      handleChangeAdditionalCost(e.target.value)
                     }
                     className="w-full px-3 py-2 border rounded-lg"
+                    placeholder="0"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Thêm chi phí phát sinh (thuốc ngoài, phụ phí,... nếu có).
+                  </p>
                 </div>
               </div>
 
@@ -298,27 +372,42 @@ export default function InvoicesPage() {
                 <input
                   type="number"
                   value={formData.total_amount}
-                  onChange={(e) =>
-                    setFormData({ ...formData, total_amount: e.target.value })
-                  }
-                  className="w-full px-3 py-2 border rounded-lg"
+                  readOnly
+                  className="w-full px-3 py-2 border rounded-lg bg-gray-100 cursor-not-allowed"
                 />
               </div>
 
-              {/* Status */}
-              <div>
-                <label className="text-sm font-medium">Payment Status</label>
-                <select
-                  value={formData.payment_status}
-                  onChange={(e) =>
-                    setFormData({ ...formData, payment_status: e.target.value })
-                  }
-                  className="w-full px-3 py-2 border rounded-lg"
-                >
-                  <option>Pending</option>
-                  <option>Paid</option>
-                  <option>Canceled</option>
-                </select>
+              {/* Payment method & Status */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Payment Method</label>
+                  <select
+                    value={formData.payment_method}
+                    onChange={(e) =>
+                      setFormData({ ...formData, payment_method: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border rounded-lg"
+                  >
+                    <option>Cash</option>
+                    <option>Card</option>
+                    <option>Bank Transfer</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium">Payment Status</label>
+                  <select
+                    value={formData.payment_status}
+                    onChange={(e) =>
+                      setFormData({ ...formData, payment_status: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border rounded-lg"
+                  >
+                    <option>Pending</option>
+                    <option>Paid</option>
+                    <option>Canceled</option>
+                  </select>
+                </div>
               </div>
 
               {/* Payment Date */}
@@ -380,7 +469,7 @@ export default function InvoicesPage() {
                 onClick={() => setShowHistoryModal(false)}
                 className="text-black-600"
               >
-                <X size={22} color='red' />
+                <X size={22} color="red" />
               </button>
             </div>
 
@@ -394,9 +483,13 @@ export default function InvoicesPage() {
                     className="p-3 border rounded-lg bg-black-50 flex justify-between"
                   >
                     <div>
-                      <p className="font-medium text-black">Status: {h.status}</p>
+                      <p className="font-medium text-black">
+                        Status: {h.status}
+                      </p>
                       {h.changed_by && (
-                        <p className="text-xs text-black-500 text-black">By: {h.changed_by}</p>
+                        <p className="text-xs text-black-500 text-black">
+                          By: {h.changed_by}
+                        </p>
                       )}
                     </div>
                     <p className="text-xs text-black-500 text-black">

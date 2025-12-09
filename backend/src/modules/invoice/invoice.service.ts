@@ -67,17 +67,18 @@ export class InvoiceService {
       saved = await this.invoiceRepository.save(saved);
     }
 
-    // Nếu vừa chuyển sang Paid → archive appointment
-    if (previousStatus !== 'Paid' && saved.payment_status === 'Paid') {
-      const appointmentId = saved.appointment_id;
+   // Nếu vừa chuyển sang Paid → archive appointment
+if (previousStatus !== 'Paid' && saved.payment_status === 'Paid') {
+  const appointmentId = saved.appointment_id;
 
-      if (appointmentId) {
-        await this.appointmentRepository.update(
-          { appointment_id: appointmentId },
-          { status: 'Archived' },
-        );
-      }
-    }
+  if (appointmentId) {
+    await this.appointmentRepository.update(
+      { appointment_id: appointmentId },
+      { status: 'Archived' },
+    );
+  }
+}
+
 
     return saved;
   }

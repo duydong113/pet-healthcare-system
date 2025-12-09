@@ -12,7 +12,7 @@ import { AppointmentModule } from './modules/appointment/appointment.module';
 import { StaffModule } from './modules/staff/staff.module';
 import { MedicalRecordModule } from './modules/medical-record/medical-record.module';
 import { InvoiceModule } from './modules/invoice/invoice.module';
-
+import { ChatModule } from './chat/chat.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -32,6 +32,7 @@ import { InvoiceModule } from './modules/invoice/invoice.module';
     StaffModule,
     MedicalRecordModule,
     InvoiceModule,
+    ChatModule,
   ],
 })
 export class AppModule {}

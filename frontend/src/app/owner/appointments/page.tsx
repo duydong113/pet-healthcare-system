@@ -260,7 +260,7 @@ export default function OwnerAppointmentsPage() {
                       <Calendar className="text-blue-600" size={24} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900">
+                      <h3 className="text-lg text-black font-bold text-gray-900">
                         Appointment #{apt.appointment_id}
                       </h3>
                       <p className="text-sm text-gray-600">for {apt.pet?.name}</p>
@@ -275,7 +275,7 @@ export default function OwnerAppointmentsPage() {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="text-black grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-xs text-gray-500 mb-1">Services</p>
                     <p className="font-medium text-gray-900">

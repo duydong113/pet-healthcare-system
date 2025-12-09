@@ -46,13 +46,17 @@ export const staffAPI = {
 
 // Appointment APIs
 export const appointmentAPI = {
-  getAll: () => axios.get('/appointments'),
+  // NEW: support includeArchived
+  getAll: (includeArchived: boolean = false) =>
+    axios.get('/appointments', {
+      params: includeArchived ? { includeArchived: true } : {},
+    }),
+
   getOne: (id: number) => axios.get(`/appointments/${id}`),
   create: (data: any) => axios.post('/appointments', data),
   update: (id: number, data: any) => axios.patch(`/appointments/${id}`, data),
   delete: (id: number) => axios.delete(`/appointments/${id}`),
 
-  // 🆕 Lấy danh sách slot trống theo ngày (và optional staffId)
   getAvailableSlots: (params: { date: string; staffId?: number | string }) =>
     axios.get('/appointments/available-slots', { params }),
 };
@@ -74,4 +78,9 @@ export const invoiceAPI = {
   create: (data: any) => axios.post('/invoices', data),
   update: (id: number, data: any) => axios.patch(`/invoices/${id}`, data),
   delete: (id: number) => axios.delete(`/invoices/${id}`),
+};
+
+export const chatAPI = {
+  askPetAI: (data: { message: string; petId?: number }) =>
+    axios.post('/chat/ask', data),
 };
