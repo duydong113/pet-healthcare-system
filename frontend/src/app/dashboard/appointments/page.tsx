@@ -4,11 +4,12 @@ import { useEffect, useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { appointmentAPI, petAPI, serviceAPI, staffAPI, petOwnerAPI } from '@/services/api';
 import { Plus, Edit, Trash2, X, Calendar } from 'lucide-react';
+
+export default function AppointmentsPage() {
 const [showHistoryModal, setShowHistoryModal] = useState(false);
 const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
 const [selectedHistory, setSelectedHistory] = useState<any[]>([]);
 
-export default function AppointmentsPage() {
   const [appointments, setAppointments] = useState<any[]>([]);
   const [pets, setPets] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);

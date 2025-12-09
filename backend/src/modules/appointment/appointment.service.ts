@@ -5,7 +5,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Not } from 'typeorm';
 import { Appointment } from '../../entities/appointment.entity';
 import { AppointmentService as AppointmentServiceEntity } from '../../entities/appointment-service.entity';
 import { Service } from '../../entities/service.entity';
@@ -44,11 +44,10 @@ export class AppointmentService {
       );
     }
 
-    // 2. Tạo Appointment entity (không truyền service_ids vì nó không tồn tại trong entity)
+    // 2. Tạo Appointment entity
     const appointment = this.appointmentRepository.create({
       pet_id: createAppointmentDto.pet_id,
       owner_id: createAppointmentDto.owner_id,
-      // dùng ?? để tránh bug với 0 và giữ type number | undefined
       staff_id: createAppointmentDto.staff_id ?? undefined,
       appointment_date: createAppointmentDto.appointment_date,
       note: createAppointmentDto.note,
@@ -107,10 +106,8 @@ export class AppointmentService {
         },
       )
       .andWhere('appointment.status NOT IN (:...statuses)', {
-  statuses: ['Canceled', 'Archived'],
-});
-
-
+        statuses: ['Canceled', 'Archived'],
+      });
 
     if (staffId) {
       queryBuilder.andWhere('appointment.staff_id = :staffId', { staffId });
@@ -154,9 +151,13 @@ export class AppointmentService {
 
   /**
    * Lấy tất cả appointments
+   * Mặc định ẩn Archived (coi như đã xoá mềm)
    */
-  async findAll(): Promise<Appointment[]> {
+  async findAll(includeArchived = false): Promise<Appointment[]> {
+    const where = includeArchived ? {} : { status: Not('Archived') };
+
     return this.appointmentRepository.find({
+      where,
       relations: [
         'pet',
         'service',
@@ -259,10 +260,17 @@ export class AppointmentService {
   }
 
   /**
-   * Xoá appointment
+   * "Xoá" appointment → thực chất là soft-delete: chuyển sang Archived
+   * để tránh lỗi FK với bảng invoices.
    */
   async remove(id: number): Promise<void> {
-    const appointment = await this.findOne(id);
-    await this.appointmentRepository.remove(appointment);
+    // Đảm bảo appointment tồn tại, nếu không sẽ throw NotFound
+    await this.findOne(id);
+
+    // KHÔNG DELETE, chỉ update status
+    await this.appointmentRepository.update(
+      { appointment_id: id },
+      { status: 'Archived' },
+    );
   }
 }

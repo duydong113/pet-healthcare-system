@@ -27,11 +27,14 @@ export class AppointmentController {
     return this.appointmentService.create(createAppointmentDto);
   }
 
-  @Get()
-  @ApiOperation({ summary: 'Get all appointments' })
-  findAll() {
-    return this.appointmentService.findAll();
-  }
+ @Get()
+@ApiOperation({ summary: 'Get all appointments' })
+@ApiQuery({ name: 'includeArchived', required: false, type: Boolean })
+findAll(@Query('includeArchived') includeArchived?: string) {
+  const include = includeArchived === 'true';
+  return this.appointmentService.findAll(include);
+}
+
 
   @Get('pending')
   @ApiOperation({ summary: 'Get pending appointments (for staff to assign)' })
