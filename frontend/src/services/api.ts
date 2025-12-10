@@ -1,5 +1,5 @@
 import axios from '@/lib/axios';
-
+import axiosInstance from '@/lib/axios';
 // Auth APIs
 export const authAPI = {
   loginStaff: (data: { email: string; password: string }) =>
