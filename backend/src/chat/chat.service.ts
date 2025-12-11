@@ -63,7 +63,7 @@ Nhiệm vụ:
             'Content-Type': 'application/json',
             // Hai header này OpenRouter khuyến khích, có cũng tốt
             'HTTP-Referer': 'http://localhost:3001', // đổi thành URL frontend nếu muốn
-            'X-Title': 'VNU Pet Healthcare Assistant',
+            'X-Title': 'PawPerfect Healthcare Assistant',
           },
         },
       );

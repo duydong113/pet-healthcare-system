@@ -4,7 +4,7 @@ import type React from 'react';
 import { useEffect, useState } from 'react';
 import PetOwnerLayout from '@/components/layout/PetOwnerLayout';
 import { petAPI } from '@/services/api';
-import { PawPrint, Calendar, Weight, Pencil } from 'lucide-react';
+import { PawPrint, Calendar, Weight, Pencil, Trash2, Plus } from 'lucide-react';
 
 export default function OwnerPetsPage() {
   const [pets, setPets] = useState<any[]>([]);
@@ -21,6 +21,16 @@ export default function OwnerPetsPage() {
     name: '',
     species: '',
     gender: 'Male',
+    weight: '',
+  });
+
+  // modal add
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [addForm, setAddForm] = useState({
+    name: '',
+    species: '',
+    gender: 'Male',
+    dob: '',
     weight: '',
   });
 
@@ -67,6 +77,8 @@ export default function OwnerPetsPage() {
     }
     return `${years} year${years > 1 ? 's' : ''}`;
   };
+
+  // ---------- EDIT PET ----------
 
   const openEditModal = (pet: any) => {
     setSelectedPet(pet);
@@ -116,6 +128,72 @@ export default function OwnerPetsPage() {
     }
   };
 
+  // ---------- ADD PET ----------
+
+  const openAddModal = () => {
+    setAddForm({
+      name: '',
+      species: '',
+      gender: 'Male',
+      dob: '',
+      weight: '',
+    });
+    setIsAddModalOpen(true);
+  };
+
+  const closeAddModal = () => {
+    setIsAddModalOpen(false);
+    setAddForm({
+      name: '',
+      species: '',
+      gender: 'Male',
+      dob: '',
+      weight: '',
+    });
+  };
+
+  const handleCreatePet = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ownerId) return;
+
+    try {
+      const payload = {
+        owner_id: ownerId,
+        name: addForm.name,
+        species: addForm.species,
+        gender: addForm.gender, // 'Male' | 'Female'
+        dob: addForm.dob, // 'YYYY-MM-DD' -> backend @Type(() => Date)
+        weight: parseFloat(addForm.weight),
+      };
+
+      await petAPI.create(payload);
+
+      if (ownerId) {
+        await fetchMyPets(ownerId);
+      }
+
+      closeAddModal();
+    } catch (err: any) {
+      console.error('Error creating pet', err);
+      alert(err?.response?.data?.message || 'Error creating pet');
+    }
+  };
+
+  // ---------- DELETE PET ----------
+
+  const handleDeletePet = async (petId: number) => {
+    if (!ownerId) return;
+    if (!confirm('Are you sure you want to delete this pet?')) return;
+
+    try {
+      await petAPI.delete(petId);
+      await fetchMyPets(ownerId);
+    } catch (err) {
+      console.error('Error deleting pet', err);
+      alert('Error deleting pet');
+    }
+  };
+
   // tránh mismatch giữa SSR & client
   if (!mounted) {
     return null;
@@ -134,12 +212,21 @@ export default function OwnerPetsPage() {
   return (
     <PetOwnerLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">My Pets 🐾</h1>
-          <p className="text-gray-600 mt-1">
-            View your beloved pets&apos; information
-          </p>
+        {/* Header + nút Add Pet */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">My Pets 🐾</h1>
+            <p className="text-gray-600 mt-1">
+              View and manage your beloved pets&apos; information
+            </p>
+          </div>
+          <button
+            onClick={openAddModal}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-green-400 to-blue-500 text-white text-sm font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition"
+          >
+            <Plus size={16} />
+            Add Pet
+          </button>
         </div>
 
         {/* Pets Grid */}
@@ -148,7 +235,7 @@ export default function OwnerPetsPage() {
             <PawPrint className="mx-auto mb-4 text-gray-400" size={64} />
             <h3 className="text-xl font-bold text-gray-900 mb-2">No Pets Yet</h3>
             <p className="text-gray-600 mb-4">
-              Contact the clinic to register your pets
+              Use the &quot;Add Pet&quot; button to register your pets.
             </p>
           </div>
         ) : (
@@ -224,13 +311,23 @@ export default function OwnerPetsPage() {
                       Pet ID: #{pet.pet_id}
                     </span>
 
-                    <button
-                      onClick={() => openEditModal(pet)}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-orange-50 text-xs font-semibold text-orange-600 hover:bg-orange-100 transition-colors"
-                    >
-                      <Pencil size={14} />
-                      Edit info
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => openEditModal(pet)}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-orange-50 text-xs font-semibold text-orange-600 hover:bg-orange-100 transition-colors"
+                      >
+                        <Pencil size={14} />
+                        Edit info
+                      </button>
+                      <button
+                        onClick={() => handleDeletePet(pet.pet_id)}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-red-50 text-xs font-semibold text-red-600 hover:bg-red-100 transition-colors"
+                        title="Delete pet"
+                      >
+                        <Trash2 size={14} />
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -242,11 +339,148 @@ export default function OwnerPetsPage() {
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
           <h3 className="font-bold text-blue-900 mb-2">ℹ️ Note</h3>
           <p className="text-sm text-blue-800">
-            To add new pets or update pet information, please contact the clinic
-            staff.
+            You can add new pets using the &quot;Add Pet&quot; button above. For any
+            advanced changes, please contact the clinic staff.
           </p>
         </div>
       </div>
+
+      {/* ADD PET MODAL */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md">
+            {/* Header */}
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center text-3xl shadow-md">
+                🐾
+              </div>
+
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Add New Pet</h2>
+                <p className="text-sm text-gray-700">
+                  Create a profile for your pet
+                </p>
+              </div>
+            </div>
+
+            {/* Form */}
+            <form className="space-y-5" onSubmit={handleCreatePet}>
+              {/* Name */}
+              <div>
+                <label className="text-sm font-semibold text-gray-900">
+                  Name *
+                </label>
+                <input
+                  name="name"
+                  value={addForm.name}
+                  onChange={(e) =>
+                    setAddForm({ ...addForm, name: e.target.value })
+                  }
+                  required
+                  className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-900 placeholder-gray-400 
+                  focus:ring-2 focus:ring-green-300 focus:border-green-400 outline-none text-sm"
+                  placeholder="Your pet's name"
+                />
+              </div>
+
+              {/* Species */}
+              <div>
+                <label className="text-sm font-semibold text-gray-900">
+                  Species *
+                </label>
+                <input
+                  name="species"
+                  value={addForm.species}
+                  onChange={(e) =>
+                    setAddForm({ ...addForm, species: e.target.value })
+                  }
+                  required
+                  className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-900 placeholder-gray-400 
+                  focus:ring-2 focus:ring-green-300 focus:border-green-400 outline-none text-sm"
+                  placeholder="Dog, Cat, ..."
+                />
+              </div>
+
+              {/* Gender */}
+              <div>
+                <label className="text-sm font-semibold text-gray-900">
+                  Gender *
+                </label>
+                <select
+                  name="gender"
+                  value={addForm.gender}
+                  onChange={(e) =>
+                    setAddForm({ ...addForm, gender: e.target.value })
+                  }
+                  className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-gray-900 
+                  focus:ring-2 focus:ring-green-300 focus:border-green-400 outline-none text-sm"
+                >
+                  <option value="Male">Male ♂️</option>
+                  <option value="Female">Female ♀️</option>
+                </select>
+              </div>
+
+              {/* DOB */}
+              <div>
+                <label className="text-sm font-semibold text-gray-900">
+                  Date of Birth *
+                </label>
+                <input
+                  type="date"
+                  name="dob"
+                  value={addForm.dob}
+                  onChange={(e) =>
+                    setAddForm({ ...addForm, dob: e.target.value })
+                  }
+                  required
+                  className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-900 
+                  focus:ring-2 focus:ring-green-300 focus:border-green-400 outline-none text-sm"
+                />
+              </div>
+
+              {/* Weight */}
+              <div>
+                <label className="text-sm font-semibold text-gray-900">
+                  Weight (kg) *
+                </label>
+                <input
+                  type="number"
+                  name="weight"
+                  value={addForm.weight}
+                  onChange={(e) =>
+                    setAddForm({ ...addForm, weight: e.target.value })
+                  }
+                  required
+                  className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-900 placeholder-gray-400 
+                  focus:ring-2 focus:ring-green-300 focus:border-green-400 outline-none text-sm"
+                  placeholder="e.g. 5.5"
+                  step="0.1"
+                  min="0"
+                />
+              </div>
+
+              {/* Footer Buttons */}
+              <div className="flex justify-between items-center pt-4">
+                <button
+                  type="button"
+                  onClick={closeAddModal}
+                  className="px-4 py-2 rounded-xl text-gray-700 font-medium hover:bg-gray-100 text-sm transition"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  className="px-6 py-3 rounded-xl bg-gradient-to-r from-green-400 to-blue-500 text-white 
+                  text-sm font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition"
+                >
+                  Add Pet
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* EDIT PET MODAL */}
       {isModalOpen && selectedPet && (
