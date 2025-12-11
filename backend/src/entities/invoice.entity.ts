@@ -36,7 +36,7 @@ export class Invoice {
 
   @Column({
     type: 'enum',
-    enum: ['Pending', 'Paid', 'Canceled'],
+    enum: ['Pending', 'Finalized', 'Paid', 'Canceled'],
     default: 'Pending',
   })
   payment_status: string;
