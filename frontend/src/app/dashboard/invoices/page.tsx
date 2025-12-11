@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import DashboardLayout from '@/components/layout/DashboardLayout';
-import { invoiceAPI, appointmentAPI, petOwnerAPI } from '@/services/api';
-import { Plus, Edit, Trash2, X, DollarSign } from 'lucide-react';
-import { formatPrice } from '@/lib/utils';
+import { useEffect, useState } from "react";
+import DashboardLayout from "@/components/layout/DashboardLayout";
+import { invoiceAPI, appointmentAPI, petOwnerAPI } from "@/services/api";
+import { Plus, Edit, Trash2, X, DollarSign } from "lucide-react";
+import { formatPrice } from "@/lib/utils";
 
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<any[]>([]);
@@ -20,15 +20,15 @@ export default function InvoicesPage() {
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
 
   const [formData, setFormData] = useState({
-    appointment_id: '',
-    owner_id: '',
-    base_amount: '',
-    additional_cost: '',
-    total_amount: '',
-    payment_method: 'Cash',
-    payment_status: 'Pending',
-    payment_date: '',
-    issued_by: '',
+    appointment_id: "",
+    owner_id: "",
+    base_amount: "",
+    additional_cost: "",
+    total_amount: "",
+    payment_method: "Cash",
+    payment_status: "Pending",
+    payment_date: "",
+    issued_by: "",
   });
 
   useEffect(() => {
@@ -47,7 +47,7 @@ export default function InvoicesPage() {
       setAppointments(appRes.data);
       setOwners(ownerRes.data);
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
     } finally {
       setLoading(false);
     }
@@ -55,15 +55,15 @@ export default function InvoicesPage() {
 
   const resetForm = () => {
     setFormData({
-      appointment_id: '',
-      owner_id: '',
-      base_amount: '',
-      additional_cost: '',
-      total_amount: '',
-      payment_method: 'Cash',
-      payment_status: 'Pending',
-      payment_date: '',
-      issued_by: '',
+      appointment_id: "",
+      owner_id: "",
+      base_amount: "",
+      additional_cost: "",
+      total_amount: "",
+      payment_method: "Cash",
+      payment_status: "Pending",
+      payment_date: "",
+      issued_by: "",
     });
     setEditing(null);
   };
@@ -71,17 +71,14 @@ export default function InvoicesPage() {
   /** Tính tổng tiền service trong 1 appointment */
   const computeBaseAmountFromAppointment = (appointmentId: number): number => {
     const apt = appointments.find(
-      (a: any) => a.appointment_id === appointmentId,
+      (a: any) => a.appointment_id === appointmentId
     );
     if (!apt) return 0;
 
     // Nếu dùng bảng appointmentServices (nhiều service)
     if (apt.appointmentServices?.length) {
       return apt.appointmentServices.reduce((sum: number, as: any) => {
-        const price =
-          as.service?.price ??
-          as.service_price ??
-          0;
+        const price = as.service?.price ?? as.service_price ?? 0;
         return sum + Number(price || 0);
       }, 0);
     }
@@ -106,7 +103,7 @@ export default function InvoicesPage() {
     // tự gán owner theo appointment
     let ownerIdStr = formData.owner_id;
     const apt = appointments.find(
-      (a: any) => a.appointment_id === appointmentId,
+      (a: any) => a.appointment_id === appointmentId
     );
     if (apt?.owner_id) {
       ownerIdStr = String(apt.owner_id);
@@ -116,8 +113,8 @@ export default function InvoicesPage() {
       ...prev,
       appointment_id: value,
       owner_id: ownerIdStr,
-      base_amount: base ? base.toString() : '',
-      total_amount: total ? total.toString() : '',
+      base_amount: base ? base.toString() : "",
+      total_amount: total ? total.toString() : "",
     }));
   };
 
@@ -130,7 +127,7 @@ export default function InvoicesPage() {
     setFormData((prev) => ({
       ...prev,
       additional_cost: value,
-      total_amount: total ? total.toString() : '',
+      total_amount: total ? total.toString() : "",
     }));
   };
 
@@ -145,7 +142,9 @@ export default function InvoicesPage() {
       total_amount: Number(formData.total_amount) || 0,
       payment_method: formData.payment_method,
       payment_status: formData.payment_status,
-      payment_date: formData.payment_date ? new Date(formData.payment_date) : null,
+      payment_date: formData.payment_date
+        ? new Date(formData.payment_date)
+        : null,
       issued_by: formData.issued_by,
     };
 
@@ -160,7 +159,7 @@ export default function InvoicesPage() {
       resetForm();
       fetchData();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Error saving invoice');
+      alert(err.response?.data?.message || "Error saving invoice");
     }
   };
 
@@ -169,27 +168,27 @@ export default function InvoicesPage() {
     setFormData({
       appointment_id: String(inv.appointment_id),
       owner_id: String(inv.owner_id),
-      base_amount: String(inv.base_amount ?? ''),
-      additional_cost: String(inv.additional_cost ?? ''),
-      total_amount: String(inv.total_amount ?? ''),
+      base_amount: String(inv.base_amount ?? ""),
+      additional_cost: String(inv.additional_cost ?? ""),
+      total_amount: String(inv.total_amount ?? ""),
       payment_method: inv.payment_method,
       payment_status: inv.payment_status,
       payment_date: inv.payment_date
         ? new Date(inv.payment_date).toISOString().slice(0, 10)
-        : '',
+        : "",
       issued_by: inv.issued_by,
     });
     setShowModal(true);
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Delete invoice?')) return;
+    if (!confirm("Delete invoice?")) return;
 
     try {
       await invoiceAPI.delete(id);
       fetchData();
     } catch (err) {
-      alert('Error deleting invoice');
+      alert("Error deleting invoice");
     }
   };
 
@@ -222,11 +221,21 @@ export default function InvoicesPage() {
               <thead className="bg-gray-50 border-b">
                 <tr>
                   <th className="px-6 py-3 text-xs font-bold text-black">ID</th>
-                  <th className="px-6 py-3 text-xs font-bold text-black">Appointment</th>
-                  <th className="px-6 py-3 text-xs font-bold text-black">Owner</th>
-                  <th className="px-6 py-3 text-xs font-bold text-black">Total</th>
-                  <th className="px-6 py-3 text-xs font-bold text-black">Status</th>
-                  <th className="px-6 py-3 text-xs font-bold text-black">Actions</th>
+                  <th className="px-6 py-3 text-xs font-bold text-black">
+                    Appointment
+                  </th>
+                  <th className="px-6 py-3 text-xs font-bold text-black">
+                    Owner
+                  </th>
+                  <th className="px-6 py-3 text-xs font-bold text-black">
+                    Total
+                  </th>
+                  <th className="px-6 py-3 text-xs font-bold text-black">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-xs font-bold text-black">
+                    Actions
+                  </th>
                 </tr>
               </thead>
 
@@ -234,12 +243,18 @@ export default function InvoicesPage() {
                 {invoices.map((inv) => (
                   <tr key={inv.invoice_id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 text-black">{inv.invoice_id}</td>
-                    <td className="px-6 py-4 text-black">{inv.appointment_id}</td>
-                    <td className="px-6 py-4 text-black">{inv.owner?.full_name}</td>
+                    <td className="px-6 py-4 text-black">
+                      {inv.appointment_id}
+                    </td>
+                    <td className="px-6 py-4 text-black">
+                      {inv.owner?.full_name}
+                    </td>
                     <td className="px-6 py-4 text-black font-semibold">
                       {formatPrice(inv.total_amount)}
                     </td>
-                    <td className="px-6 py-4 text-black">{inv.payment_status}</td>
+                    <td className="px-6 py-4 text-black">
+                      {inv.payment_status}
+                    </td>
 
                     <td className="px-6 py-4">
                       <div className="flex gap-2">
@@ -284,7 +299,7 @@ export default function InvoicesPage() {
           <div className="bg-white w-full max-w-lg  p-6 text-black rounded-2xl shadow-xl">
             <div className="flex justify-between  items-center mb-4 border-b pb-2">
               <h2 className="text-xl text-black font-semibold">
-                {editing ? 'Edit Invoice' : 'New Invoice'}
+                {editing ? "Edit Invoice" : "New Invoice"}
               </h2>
               <button onClick={() => setShowModal(false)}>
                 <X size={22} />
@@ -311,7 +326,8 @@ export default function InvoicesPage() {
                   ))}
                 </select>
                 <p className="text-xs text-gray-500 mt-1">
-                  Base amount sẽ tự tính = tổng giá các dịch vụ trong appointment.
+                  Base amount sẽ tự tính = tổng giá các dịch vụ trong
+                  appointment.
                 </p>
               </div>
 
@@ -334,7 +350,8 @@ export default function InvoicesPage() {
                   ))}
                 </select>
                 <p className="text-xs text-gray-500 mt-1">
-                  Khi chọn appointment, hệ thống sẽ tự gợi ý đúng owner của lịch hẹn.
+                  Khi chọn appointment, hệ thống sẽ tự gợi ý đúng owner của lịch
+                  hẹn.
                 </p>
               </div>
 
@@ -355,9 +372,7 @@ export default function InvoicesPage() {
                   <input
                     type="number"
                     value={formData.additional_cost}
-                    onChange={(e) =>
-                      handleChangeAdditionalCost(e.target.value)
-                    }
+                    onChange={(e) => handleChangeAdditionalCost(e.target.value)}
                     className="w-full px-3 py-2 border rounded-lg"
                     placeholder="0"
                   />
@@ -384,7 +399,10 @@ export default function InvoicesPage() {
                   <select
                     value={formData.payment_method}
                     onChange={(e) =>
-                      setFormData({ ...formData, payment_method: e.target.value })
+                      setFormData({
+                        ...formData,
+                        payment_method: e.target.value,
+                      })
                     }
                     className="w-full px-3 py-2 border rounded-lg"
                   >
@@ -399,11 +417,15 @@ export default function InvoicesPage() {
                   <select
                     value={formData.payment_status}
                     onChange={(e) =>
-                      setFormData({ ...formData, payment_status: e.target.value })
+                      setFormData({
+                        ...formData,
+                        payment_status: e.target.value,
+                      })
                     }
                     className="w-full px-3 py-2 border rounded-lg"
                   >
                     <option>Pending</option>
+                    <option>Finalized</option>
                     <option>Paid</option>
                     <option>Canceled</option>
                   </select>
@@ -449,7 +471,7 @@ export default function InvoicesPage() {
                   type="submit"
                   className="w-1/2 py-2 bg-blue-600 text-white rounded-lg"
                 >
-                  {editing ? 'Update' : 'Create'}
+                  {editing ? "Update" : "Create"}
                 </button>
               </div>
             </form>

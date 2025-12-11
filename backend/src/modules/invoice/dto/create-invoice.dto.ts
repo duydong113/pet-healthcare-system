@@ -1,4 +1,10 @@
-import { IsNumber, IsString, IsEnum, IsDate, IsOptional } from 'class-validator';
+import {
+  IsNumber,
+  IsString,
+  IsEnum,
+  IsDate,
+  IsOptional,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
@@ -11,15 +17,15 @@ export class CreateInvoiceDto {
   @IsNumber()
   owner_id: number;
 
-  @ApiProperty({ example: 50.00 })
+  @ApiProperty({ example: 50.0 })
   @IsNumber()
   base_amount: number;
 
-  @ApiProperty({ example: 10.00 })
+  @ApiProperty({ example: 10.0 })
   @IsNumber()
   additional_cost: number;
 
-  @ApiProperty({ example: 60.00 })
+  @ApiProperty({ example: 60.0 })
   @IsNumber()
   total_amount: number;
 
@@ -28,7 +34,7 @@ export class CreateInvoiceDto {
   payment_method: string;
 
   @ApiProperty({ example: 'Pending' })
-  @IsEnum(['Pending', 'Paid', 'Canceled'])
+  @IsEnum(['Pending', 'Finalized', 'Paid', 'Canceled'])
   payment_status: string;
 
   @ApiProperty({ example: '2024-12-25' })
